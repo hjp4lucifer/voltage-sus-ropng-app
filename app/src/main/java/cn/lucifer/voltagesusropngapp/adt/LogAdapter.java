@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import cn.lucifer.util.ILogPrinter;
+import cn.lucifer.util.LogUtils;
 
 import java.util.LinkedList;
 
