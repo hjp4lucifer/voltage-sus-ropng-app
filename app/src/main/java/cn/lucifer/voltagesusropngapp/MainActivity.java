@@ -15,13 +15,13 @@ import android.widget.TextView;
 import cn.lucifer.util.LogUtils;
 import cn.lucifer.voltage.sus.auto.AutoLogin;
 import cn.lucifer.voltagesusropngapp.adt.LogAdapter;
+import cn.lucifer.voltagesusropngapp.service.AutoLoginService;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
 
 public class MainActivity extends AppCompatActivity {
 
 	protected ListView listView_log;
 	protected LogAdapter logAdapter;
-	protected AutoLogin autoLogin;
 
 	private BroadcastReceiver logReceiver = new BroadcastReceiver() {
 
@@ -48,17 +48,10 @@ public class MainActivity extends AppCompatActivity {
 					return true;
 				case R.id.navigation_dashboard: {
 					//logAdapter.addFirst(getString(R.string.action_auto_login));
-					if (null == autoLogin) {
-						autoLogin = new AutoLogin(5);
-						try {
-							autoLogin.setUp();
-							autoLogin.autoLogin();
-							autoLogin.tearDown();
-						} catch (Exception e) {
-							Log.e("autoLogin", "autoLogin Exception!!!", e);
-							LogUtils.error("autoLogin Exception!!!", e);
-						}
-					}
+					Context context = getApplicationContext();
+					Intent intent = new Intent(context, AutoLoginService.class);
+					intent.putExtra(AutoLoginService.AUTO_LOGIN_TAG, AutoLoginService.AUTO_LOGIN_START);
+					context.startService(intent);
 					return true;
 				}
 				case R.id.navigation_notifications:
