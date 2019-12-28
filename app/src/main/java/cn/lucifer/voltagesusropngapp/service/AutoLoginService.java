@@ -14,7 +14,9 @@ import cn.lucifer.util.StrUtils;
 import cn.lucifer.voltage.sus.auto.AutoLogin;
 import cn.lucifer.voltage.sus.thread.IWatchingRunning;
 import cn.lucifer.voltage.sus.thread.WatchingThread;
+import cn.lucifer.voltagesusropngapp.R;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
+import cn.lucifer.voltagesusropngapp.util.MainUIUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.LinkedList;
@@ -138,6 +140,10 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 						"autoLogin 有失败的线程，准备执行第{}次的重试！！！ 需要重试的playerCount={}",
 						retryCount, errorList.size()),
 						null);
+
+				String menuNewName = getString(R.string.action_auto_login)
+						+ StrUtils.generateMessage("({})", retryCount);
+				MainUIUtils.changeUiName(R.id.navigation_auto_login, menuNewName);
 
 				autoLogin.errorList = new LinkedList<>();
 				autoLogin.playerPropList = errorList;

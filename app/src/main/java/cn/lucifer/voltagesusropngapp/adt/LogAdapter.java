@@ -8,19 +8,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import cn.lucifer.util.ILogPrinter;
-import cn.lucifer.util.LogUtils;
 
 import java.util.LinkedList;
 
 public class LogAdapter extends BaseAdapter {
 
 	protected Context context;
-	protected LinkedList<String> msgs = new LinkedList<String>();
+	protected LinkedList<String> msgList = new LinkedList<>();
 
 	public LogAdapter(Context context) {
 		this.context = context;
-		msgs.add("一切从【菜单】键开始 in sdop —— 沧之云！ License: GPL v2.");
+		msgList.add("一切从【菜单】键开始 in sdop —— 沧之云！ License: GPL v2.");
 	}
 
 	protected Spanned getText(String text) {
@@ -32,24 +30,24 @@ public class LogAdapter extends BaseAdapter {
 	private boolean oddCount;
 
 	public void addFirst(String text) {
-		msgs.addFirst(text);
+		msgList.addFirst(text);
 		oddCount = !oddCount;
 		if (getCount() > maxCount) {
-			msgs.removeLast();
+			msgList.removeLast();
 		}
 		notifyDataSetChanged();
 	}
 
 	public void addLast(String text) {
-		msgs.addLast(text);
+		msgList.addLast(text);
 		if (getCount() > maxCount) {
-			msgs.removeFirst();
+			msgList.removeFirst();
 		}
 		notifyDataSetChanged();
 	}
 
 	public void clear() {
-		msgs.clear();
+		msgList.clear();
 		notifyDataSetChanged();
 	}
 
@@ -65,7 +63,6 @@ public class LogAdapter extends BaseAdapter {
 		tv = new TextView(context);
 		tv.setPadding(padding, padding, padding, padding);
 		setStyle(tv, position, text);
-		// return super.getView(position, convertView, parent);
 		return tv;
 	}
 
@@ -77,13 +74,13 @@ public class LogAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return msgs.size();
+		return msgList.size();
 	}
 
 	@Override
 	public String getItem(int arg0) {
 		// TODO Auto-generated method stub
-		return msgs.get(arg0);
+		return msgList.get(arg0);
 	}
 
 	@Override
