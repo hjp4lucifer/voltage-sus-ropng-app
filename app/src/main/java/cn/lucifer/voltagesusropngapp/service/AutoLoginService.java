@@ -17,9 +17,10 @@ import cn.lucifer.voltage.sus.thread.WatchingThread;
 import cn.lucifer.voltagesusropngapp.R;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
 import cn.lucifer.voltagesusropngapp.util.MainUIUtils;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.LinkedList;
+import java.util.Set;
 
 public class AutoLoginService extends Service implements IWatchingRunning {
 
@@ -124,7 +125,7 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 		int retryCount = 0;
 		while (true) {
 			try {
-				if (CollectionUtils.isEmpty(autoLogin.errorList)) {
+				if (CollectionUtils.isEmpty(autoLogin.errorSet)) {
 					LogUtils.info(StrUtils.generateMessage(
 							"autoLogin 顺利完成～～～～ retryCount={} ～～～～",
 							retryCount)
@@ -134,19 +135,19 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 
 				retryCount++;
 
-				LinkedList<String> errorList = autoLogin.errorList;
+				Set<String> errorSetBak = autoLogin.errorSet;
 
 				LogUtils.error(StrUtils.generateMessage(
 						"autoLogin 有失败的线程，准备执行第{}次的重试！！！ 需要重试的playerCount={}",
-						retryCount, errorList.size()),
+						retryCount, errorSetBak.size()),
 						null);
 
 				String menuNewName = getString(R.string.action_auto_login)
 						+ StrUtils.generateMessage("({})", retryCount);
 				MainUIUtils.changeUiName(R.id.navigation_auto_login, menuNewName);
 
-				autoLogin.errorList = new LinkedList<>();
-				autoLogin.playerPropList = errorList;
+				autoLogin.supperSetUp();
+				autoLogin.playerPropList = Lists.newArrayList(errorSetBak);
 				autoLogin.autoLogin();
 				autoLogin.tearDown();
 			} catch (Exception e) {
