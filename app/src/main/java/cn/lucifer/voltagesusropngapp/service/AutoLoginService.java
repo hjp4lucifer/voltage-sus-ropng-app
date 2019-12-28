@@ -10,10 +10,16 @@ import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import cn.lucifer.util.LogUtils;
+import cn.lucifer.util.StrUtils;
 import cn.lucifer.voltage.sus.auto.AutoLogin;
+import cn.lucifer.voltage.sus.thread.IWatchingRunning;
+import cn.lucifer.voltage.sus.thread.WatchingThread;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
+import org.apache.commons.collections4.CollectionUtils;
 
-public class AutoLoginService extends Service {
+import java.util.LinkedList;
+
+public class AutoLoginService extends Service implements IWatchingRunning {
 
 	public static final String AUTO_LOGIN_TAG = "auto_login_tag";
 
@@ -25,6 +31,8 @@ public class AutoLoginService extends Service {
 	private PowerManager.WakeLock mWakeLock;
 
 	private AutoLogin autoLogin;
+	private WatchingThread watchingThread;
+
 
 	@Nullable
 	@Override
@@ -55,15 +63,9 @@ public class AutoLoginService extends Service {
 		}
 
 		if (null == autoLogin) {
-			autoLogin = new AutoLogin(10);
-			try {
-				autoLogin.setUp();
-				autoLogin.autoLogin();
-				autoLogin.tearDown();
-			} catch (Exception e) {
-				Log.e("autoLogin", "autoLogin Exception!!!", e);
-				LogUtils.error("autoLogin Exception!!!", e);
-			}
+			autoLogin = new AutoLogin(15);
+			watchingThread = new WatchingThread("watchingAutoLogin", autoLogin, this);
+			watchingThread.start();
 		}
 
 
@@ -104,5 +106,47 @@ public class AutoLoginService extends Service {
 	@Override
 	public void onDestroy() {
 		releaseWakeLock();
+	}
+
+	@Override
+	public void watchThreadPoolExecutor() {
+		try {
+			autoLogin.setUp();
+			autoLogin.autoLogin();
+			autoLogin.tearDown();
+		} catch (Exception e) {
+			Log.e("autoLogin", "autoLogin Exception!!!", e);
+			LogUtils.error("autoLogin Exception!!!", e);
+		}
+
+		int retryCount = 0;
+		while (true) {
+			try {
+				if (CollectionUtils.isEmpty(autoLogin.errorList)) {
+					LogUtils.info(StrUtils.generateMessage(
+							"autoLogin 顺利完成～～～～ retryCount={} ～～～～",
+							retryCount)
+					);
+					return;
+				}
+
+				retryCount++;
+
+				LinkedList<String> errorList = autoLogin.errorList;
+
+				LogUtils.error(StrUtils.generateMessage(
+						"autoLogin 有失败的线程，准备执行第{}次的重试！！！ 需要重试的playerCount={}",
+						retryCount, errorList.size()),
+						null);
+
+				autoLogin.errorList = new LinkedList<>();
+				autoLogin.playerPropList = errorList;
+				autoLogin.autoLogin();
+				autoLogin.tearDown();
+			} catch (Exception e) {
+				Log.e("autoLogin", "autoLogin Exception!!!", e);
+				LogUtils.error("autoLogin Exception!!!", e);
+			}
+		}
 	}
 }
