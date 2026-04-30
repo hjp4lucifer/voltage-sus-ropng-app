@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <!-- 功能卡片区域 -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+        <!-- 自动登录卡片 -->
+        <LinearLayout
+                android:id="@+id/card_auto_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="#F0F0F0">
+
+            <TextView
+                    android:id="@+id/text_auto_login_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/action_auto_login"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:id="@+id/text_auto_login_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_not_running"
+                    android:textSize="14sp"
+                    android:layout_marginRight="8dp"/>
+
+            <Button
+                    android:id="@+id/btn_auto_login_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_start"
+                    android:minHeight="36dp"/>
+        </LinearLayout>
+
+        <!-- 竞技场对战卡片 -->
+        <LinearLayout
+                android:id="@+id/card_arena_battle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:background="#F0F0F0">
+
+            <TextView
+                    android:id="@+id/text_arena_battle_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/action_arena_battle"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:id="@+id/text_arena_battle_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_not_running"
+                    android:textSize="14sp"
+                    android:layout_marginRight="8dp"/>
+
+            <Button
+                    android:id="@+id/btn_arena_battle_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_start"
+                    android:minHeight="36dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 分隔线 -->
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#CCCCCC"/>
+
+    <!-- 日志区域 -->
+    <ListView
+            android:id="@+id/listView_log"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+</LinearLayout>

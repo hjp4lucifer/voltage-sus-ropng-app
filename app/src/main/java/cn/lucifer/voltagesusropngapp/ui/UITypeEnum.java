@@ -9,7 +9,6 @@ public enum UITypeEnum {
 	 */
 	MenuItem(1, "MenuItem"),
 
-
 	;
 
 	private int code;

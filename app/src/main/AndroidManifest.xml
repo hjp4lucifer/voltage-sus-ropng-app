@@ -29,6 +29,7 @@
         </activity>
 
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoLoginService"></service>
+        <service android:name="cn.lucifer.voltagesusropngapp.service.AutoArenaService"></service>
     </application>
 
 </manifest>

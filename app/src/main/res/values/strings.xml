@@ -1,6 +1,26 @@
 <resources>
     <string name="app_name">六木本Auto</string>
-    <string name="title_home">Home</string>
+
+    <!-- 底部导航 -->
+    <string name="tab_function">功能</string>
+    <string name="tab_stop">停止</string>
+    <string name="tab_settings">设置</string>
+
+    <!-- 功能卡片 -->
     <string name="action_auto_login">自动登录</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="action_arena_battle">竞技场对战</string>
+    <string name="btn_start">开始</string>
+    <string name="btn_stop">停止</string>
+    <string name="status_not_running">未运行</string>
+    <string name="status_running">运行中</string>
+    <string name="status_stopping">停止中…</string>
+    <string name="hint_blocked_by_other">%1$s运行中</string>
+
+    <!-- 设置页 -->
+    <string name="settings_title">全局配置</string>
+    <string name="settings_arena_id">Arena ID</string>
+    <string name="settings_raid_id">Raid ID</string>
+    <string name="settings_appli_version">版本号</string>
+    <string name="btn_save">保存</string>
+    <string name="settings_saved">保存成功</string>
 </resources>

@@ -6,39 +6,37 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import cn.lucifer.util.LogUtils;
 import cn.lucifer.util.StrUtils;
-import cn.lucifer.voltage.sus.auto.AutoLogin;
+import cn.lucifer.voltage.sus.api.BaseApi;
+import cn.lucifer.voltage.sus.auto.AutoArena;
 import cn.lucifer.voltage.sus.auto.OverrideSettingsCallback;
 import cn.lucifer.voltage.sus.thread.IWatchingRunning;
 import cn.lucifer.voltage.sus.thread.WatchingThread;
-import cn.lucifer.voltagesusropngapp.R;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
 import cn.lucifer.voltagesusropngapp.util.MainUIUtils;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Set;
+/**
+ * 竞技场自动对战服务
+ */
+public class AutoArenaService extends Service implements IWatchingRunning {
 
-public class AutoLoginService extends Service implements IWatchingRunning {
+	public static final String ARENA_BATTLE_TAG = "arena_battle_tag";
 
-	public static final String AUTO_LOGIN_TAG = "auto_login_tag";
-
-	public static final String AUTO_LOGIN_START = "auto_login_tag_start";
+	public static final String ARENA_BATTLE_START = "arena_battle_start";
 
 	/**
 	 * 电源锁
 	 */
 	private PowerManager.WakeLock mWakeLock;
 
-	private AutoLogin autoLogin;
+	private AutoArena autoArena;
 	private WatchingThread watchingThread;
 
 	/**
@@ -52,8 +50,11 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 	private BroadcastReceiver stopReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.i(LogPrinter.LOG_TAG, "AutoLoginService received stop broadcast");
+			Log.i(LogPrinter.LOG_TAG, "AutoArenaService received stop broadcast");
 			running = false;
+			if (autoArena != null) {
+				autoArena.setRunning(false);
+			}
 		}
 	};
 
@@ -67,7 +68,7 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 	public void onCreate() {
 		super.onCreate();
 
-		Log.i(LogPrinter.LOG_TAG, "--------- AutoLoginService onCreate ! ");
+		Log.i(LogPrinter.LOG_TAG, "--------- AutoArenaService onCreate ! ");
 
 		acquireWakeLock();
 
@@ -82,40 +83,33 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 		if (intent == null) {
 			return super.onStartCommand(intent, flags, startId);
 		}
-		Bundle bundle = intent.getExtras();
-		if (bundle == null) {
-			return super.onStartCommand(intent, flags, startId);
-		}
-		if (!AUTO_LOGIN_START.equals(bundle.getString(AUTO_LOGIN_TAG))) {
+		if (!ARENA_BATTLE_START.equals(intent.getStringExtra(ARENA_BATTLE_TAG))) {
 			return super.onStartCommand(intent, flags, startId);
 		}
 
 		// 检查互斥：是否有其他 Service 正在运行
 		String runningService = AppSettings.getRunningService(this);
-		if (runningService != null && !MainUIControl.SERVICE_AUTO_LOGIN.equals(runningService)) {
-			LogUtils.info(StrUtils.generateMessage("无法启动自动登录：{}正在运行", runningService));
+		if (runningService != null && !MainUIControl.SERVICE_ARENA.equals(runningService)) {
+			LogUtils.info(StrUtils.generateMessage("无法启动竞技场对战：{}正在运行", runningService));
 			return super.onStartCommand(intent, flags, startId);
 		}
 
 		// 设置运行标志
-		AppSettings.setRunningService(this, MainUIControl.SERVICE_AUTO_LOGIN);
+		AppSettings.setRunningService(this, MainUIControl.SERVICE_ARENA);
 
 		// 发送运行状态广播
-		MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING, MainUIControl.SERVICE_AUTO_LOGIN, null);
+		MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING, MainUIControl.SERVICE_ARENA, null);
 
-		if (null == autoLogin) {
-			autoLogin = new AutoLogin(15);
-
-			// 从 SharedPreferences 读取配置并设置覆盖回调
-			final String appliVersion = AppSettings.getAppliVersion(this);
-			autoLogin.setOverrideSettings(new OverrideSettingsCallback() {
+		if (null == autoArena) {
+			autoArena = new AutoArena();
+			autoArena.setRunningCallback(new AutoArena.RunningCallback() {
 				@Override
-				public void overrideSettings(cn.lucifer.voltage.sus.api.BaseApi api) {
-					api.setAppliVersion(appliVersion);
+				public void onDetailUpdate(String detail) {
+					MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING,
+							MainUIControl.SERVICE_ARENA, detail);
 				}
 			});
-
-			watchingThread = new WatchingThread("watchingAutoLogin", autoLogin, this);
+			watchingThread = new WatchingThread("watchingAutoArena", autoArena, this);
 			watchingThread.start();
 		}
 
@@ -130,7 +124,7 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 		if (null == mWakeLock) {
 			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 			mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK
-					| PowerManager.ON_AFTER_RELEASE, "cn.lucifer.voltagesusropngapp.service");
+					| PowerManager.ON_AFTER_RELEASE, "cn.lucifer.voltagesusropngapp.service.arena");
 			if (null != mWakeLock) {
 				try {
 					mWakeLock.acquire();
@@ -157,6 +151,9 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 	@Override
 	public void onDestroy() {
 		running = false;
+		if (autoArena != null) {
+			autoArena.setRunning(false);
+		}
 
 		// 注销停止广播接收器
 		try {
@@ -169,62 +166,46 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 		AppSettings.clearRunningService(this);
 
 		// 发送停止状态广播
-		MainUIUtils.sendStatus(MainUIControl.STATUS_STOPPED, MainUIControl.SERVICE_AUTO_LOGIN, null);
+		MainUIUtils.sendStatus(MainUIControl.STATUS_STOPPED, MainUIControl.SERVICE_ARENA, null);
 
 		releaseWakeLock();
 	}
 
 	@Override
 	public void watchThreadPoolExecutor() {
+		// 从 SharedPreferences 读取全局配置
+		int arenaId = AppSettings.getArenaId(this);
+		String raidId = AppSettings.getRaidId(this);
+		String appliVersion = AppSettings.getAppliVersion(this);
+
+		LogUtils.info(StrUtils.generateMessage("竞技场对战开始, arenaId={}, raidId={}, appliVersion={}",
+				arenaId, raidId, appliVersion));
+
 		try {
-			autoLogin.setUp();
-			autoLogin.autoLogin();
-			autoLogin.tearDown();
+			autoArena.setUp();
+
+			// 设置 API 配置覆盖回调
+			autoArena.setOverrideSettings(new OverrideSettingsCallback() {
+				@Override
+				public void overrideSettings(BaseApi api) {
+					api.setArenaId(arenaId);
+					api.setAppliVersion(appliVersion);
+					if (raidId != null) {
+						api.setRaidId(raidId);
+					}
+				}
+			});
+
+			autoArena.runArena(200);
+			autoArena.tearDown();
 		} catch (Exception e) {
-			Log.e("autoLogin", "autoLogin Exception!!!", e);
-			LogUtils.error("autoLogin Exception!!!", e);
+			Log.e("autoArena", "autoArena Exception!!!", e);
+			LogUtils.error("autoArena Exception!!!", e);
 		}
 
-		int retryCount = 0;
-		while (running) {
-			try {
-				if (!running) {
-					break;
-				}
-
-				if (CollectionUtils.isEmpty(autoLogin.errorSet)) {
-					LogUtils.info(StrUtils.generateMessage(
-							"autoLogin 顺利完成～～～～ retryCount={} ～～～～",
-							retryCount)
-					);
-					return;
-				}
-
-				retryCount++;
-
-				Set<String> errorSetBak = autoLogin.errorSet;
-
-				LogUtils.error(StrUtils.generateMessage(
-						"autoLogin 有失败的线程，准备执行第{}次的重试！！！ 需要重试的playerCount={}",
-						retryCount, errorSetBak.size()),
-						null);
-
-				// 更新运行详情
-				MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING, MainUIControl.SERVICE_AUTO_LOGIN,
-						StrUtils.generateMessage("重试第{}次", retryCount));
-
-				autoLogin.supperSetUp();
-				autoLogin.playerPropList = Lists.newArrayList(errorSetBak);
-				autoLogin.autoLogin();
-				autoLogin.tearDown();
-			} catch (Exception e) {
-				Log.e("autoLogin", "autoLogin Exception!!!", e);
-				LogUtils.error("autoLogin Exception!!!", e);
-			}
-		}
-
-		if (!running) {
-			LogUtils.info("自动登录已停止！");
+		// 正常结束后清理
+		if (running) {
+			LogUtils.info("竞技场对战已完成！");
 			stopSelf();
 		}
 	}
