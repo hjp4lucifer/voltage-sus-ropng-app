@@ -13,6 +13,163 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
 
+    <!-- 账号配置区域 -->
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/account_config_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+        <Button
+                android:id="@+id/btn_select_config_file"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/btn_select_config_file"
+                android:textSize="14sp"/>
+
+        <Button
+                android:id="@+id/btn_load_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/btn_load_config"
+                android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- 账号信息只读展示 -->
+    <LinearLayout
+            android:id="@+id/account_info_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="#F0F0F0"
+            android:layout_marginBottom="16dp"
+            android:visibility="visible">
+
+        <!-- nsid -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+            <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_info_nsid"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+
+            <TextView
+                    android:id="@+id/text_nsid"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textIsSelectable="true"/>
+        </LinearLayout>
+
+        <!-- deviceUid -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+            <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_info_device_uid"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+
+            <TextView
+                    android:id="@+id/text_device_uid"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textIsSelectable="true"/>
+        </LinearLayout>
+
+        <!-- pfid -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+            <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_info_pfid"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+
+            <TextView
+                    android:id="@+id/text_pfid"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"/>
+        </LinearLayout>
+
+        <!-- puKey -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+            <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_info_pukey"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+
+            <TextView
+                    android:id="@+id/text_pukey"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:textIsSelectable="true"/>
+        </LinearLayout>
+
+        <!-- rookie -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_info_rookie"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+
+            <TextView
+                    android:id="@+id/text_rookie"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
     <!-- Arena ID -->
     <LinearLayout
             android:layout_width="match_parent"

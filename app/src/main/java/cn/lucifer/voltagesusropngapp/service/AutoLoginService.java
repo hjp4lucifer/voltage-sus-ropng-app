@@ -107,6 +107,8 @@ public class AutoLoginService extends Service implements IWatchingRunning {
 			autoLogin = new AutoLogin(15);
 
 			// 从 SharedPreferences 读取配置并设置覆盖回调
+			// 注意：AutoLogin 为多账号批量场景，仅覆盖业务参数(appliVersion)，
+			// 不覆盖身份字段(nsid/puKey等)，避免所有账号变成同一身份
 			final String appliVersion = AppSettings.getAppliVersion(this);
 			autoLogin.setOverrideSettings(new OverrideSettingsCallback() {
 				@Override

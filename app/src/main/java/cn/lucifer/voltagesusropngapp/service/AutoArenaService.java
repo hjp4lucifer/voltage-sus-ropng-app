@@ -184,15 +184,12 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 		try {
 			autoArena.setUp();
 
-			// 设置 API 配置覆盖回调
+			// 设置 API 配置覆盖回调（使用公共方法，含身份字段覆盖）
+			final Context context = this;
 			autoArena.setOverrideSettings(new OverrideSettingsCallback() {
 				@Override
 				public void overrideSettings(BaseApi api) {
-					api.setArenaId(arenaId);
-					api.setAppliVersion(appliVersion);
-					if (raidId != null) {
-						api.setRaidId(raidId);
-					}
+					AppSettings.applyOverrideSettings(context, api);
 				}
 			});
 

@@ -23,4 +23,16 @@
     <string name="settings_appli_version">版本号</string>
     <string name="btn_save">保存</string>
     <string name="settings_saved">保存成功</string>
+
+    <!-- 账号配置 -->
+    <string name="account_config_title">账号配置</string>
+    <string name="btn_select_config_file">选择配置文件</string>
+    <string name="btn_load_config">加载</string>
+    <string name="account_info_nsid">nsid</string>
+    <string name="account_info_device_uid">deviceUid</string>
+    <string name="account_info_pfid">pfid</string>
+    <string name="account_info_pukey">puKey</string>
+    <string name="account_info_rookie">rookie</string>
+    <string name="config_loaded">配置加载成功</string>
+    <string name="config_load_failed">配置加载失败</string>
 </resources>
