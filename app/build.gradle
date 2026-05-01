@@ -20,6 +20,11 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+
+    packagingOptions {
+        // 解决 META-INF/DEPENDENCIES 冲突
+        pickFirst 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
