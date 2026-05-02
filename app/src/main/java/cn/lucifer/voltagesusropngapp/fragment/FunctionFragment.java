@@ -16,6 +16,7 @@ import android.widget.TextView;
 import cn.lucifer.voltagesusropngapp.R;
 import cn.lucifer.voltagesusropngapp.adt.LogAdapter;
 import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
+import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
 import cn.lucifer.voltagesusropngapp.service.AutoLoginService;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
@@ -30,6 +31,8 @@ public class FunctionFragment extends Fragment {
 	private Button btnAutoLoginStart;
 	private TextView textArenaBattleStatus;
 	private Button btnArenaBattleStart;
+	private TextView textCardUpgradeStatus;
+	private Button btnCardUpgradeStart;
 
 	private ListView listViewLog;
 	private LogAdapter logAdapter;
@@ -72,6 +75,8 @@ public class FunctionFragment extends Fragment {
 		btnAutoLoginStart = root.findViewById(R.id.btn_auto_login_start);
 		textArenaBattleStatus = root.findViewById(R.id.text_arena_battle_status);
 		btnArenaBattleStart = root.findViewById(R.id.btn_arena_battle_start);
+		textCardUpgradeStatus = root.findViewById(R.id.text_card_upgrade_status);
+		btnCardUpgradeStart = root.findViewById(R.id.btn_card_upgrade_start);
 
 		listViewLog = root.findViewById(R.id.listView_log);
 		logAdapter = new LogAdapter(getContext());
@@ -89,6 +94,13 @@ public class FunctionFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				startArenaBattle();
+			}
+		});
+
+		btnCardUpgradeStart.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startCardUpgrade();
 			}
 		});
 
@@ -159,6 +171,19 @@ public class FunctionFragment extends Fragment {
 	}
 
 	/**
+	 * 启动卡牌升阶
+	 */
+	private void startCardUpgrade() {
+		if (currentRunningService != null) {
+			return;
+		}
+		Context context = getContext();
+		Intent intent = new Intent(context, AutoCardUpgradeService.class);
+		intent.putExtra(AutoCardUpgradeService.CARD_UPGRADE_TAG, AutoCardUpgradeService.CARD_UPGRADE_START);
+		context.startService(intent);
+	}
+
+	/**
 	 * 从 SharedPreferences 恢复运行状态
 	 */
 	private void restoreRunningState() {
@@ -185,6 +210,10 @@ public class FunctionFragment extends Fragment {
 			textArenaBattleStatus.setText(R.string.status_not_running);
 			btnArenaBattleStart.setEnabled(true);
 			btnArenaBattleStart.setText(R.string.btn_start);
+
+			textCardUpgradeStatus.setText(R.string.status_not_running);
+			btnCardUpgradeStart.setEnabled(true);
+			btnCardUpgradeStart.setText(R.string.btn_start);
 		} else if (MainUIControl.SERVICE_AUTO_LOGIN.equals(runningService)) {
 			// 自动登录运行中
 			String statusText = getString(R.string.status_running);
@@ -197,6 +226,9 @@ public class FunctionFragment extends Fragment {
 
 			textArenaBattleStatus.setText(getString(R.string.hint_blocked_by_other, getString(R.string.action_auto_login)));
 			btnArenaBattleStart.setEnabled(false);
+
+			textCardUpgradeStatus.setText(getString(R.string.hint_blocked_by_other, getString(R.string.action_auto_login)));
+			btnCardUpgradeStart.setEnabled(false);
 		} else if (MainUIControl.SERVICE_ARENA.equals(runningService)) {
 			// 竞技场运行中
 			textAutoLoginStatus.setText(getString(R.string.hint_blocked_by_other, getString(R.string.action_arena_battle)));
@@ -209,6 +241,24 @@ public class FunctionFragment extends Fragment {
 			textArenaBattleStatus.setText(statusText);
 			btnArenaBattleStart.setEnabled(false);
 			btnArenaBattleStart.setText(R.string.status_running);
+
+			textCardUpgradeStatus.setText(getString(R.string.hint_blocked_by_other, getString(R.string.action_arena_battle)));
+			btnCardUpgradeStart.setEnabled(false);
+		} else if (MainUIControl.SERVICE_CARD_UPGRADE.equals(runningService)) {
+			// 卡牌升阶运行中
+			textAutoLoginStatus.setText(getString(R.string.hint_blocked_by_other, getString(R.string.action_card_upgrade)));
+			btnAutoLoginStart.setEnabled(false);
+
+			textArenaBattleStatus.setText(getString(R.string.hint_blocked_by_other, getString(R.string.action_card_upgrade)));
+			btnArenaBattleStart.setEnabled(false);
+
+			String statusText = getString(R.string.status_running);
+			if (detail != null) {
+				statusText = getString(R.string.status_running) + " (" + detail + ")";
+			}
+			textCardUpgradeStatus.setText(statusText);
+			btnCardUpgradeStart.setEnabled(false);
+			btnCardUpgradeStart.setText(R.string.status_running);
 		}
 	}
 }

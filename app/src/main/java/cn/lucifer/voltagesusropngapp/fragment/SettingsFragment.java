@@ -39,6 +39,7 @@ public class SettingsFragment extends Fragment {
 	private EditText editArenaId;
 	private EditText editRaidId;
 	private EditText editAppliVersion;
+	private EditText editCardIdList;
 	private Button btnSave;
 
 	private Uri selectedConfigUri;
@@ -57,6 +58,7 @@ public class SettingsFragment extends Fragment {
 		editArenaId = root.findViewById(R.id.edit_arena_id);
 		editRaidId = root.findViewById(R.id.edit_raid_id);
 		editAppliVersion = root.findViewById(R.id.edit_appli_version);
+		editCardIdList = root.findViewById(R.id.edit_card_upgrade_id_list);
 		btnSave = root.findViewById(R.id.btn_save_settings);
 
 		// 加载已保存的配置
@@ -192,6 +194,19 @@ public class SettingsFragment extends Fragment {
 		String appliVersion = AppSettings.getAppliVersion(context);
 		editAppliVersion.setText(appliVersion);
 
+		// 加载卡牌升阶ID列表
+		java.util.List<Integer> cardIdList = AppSettings.getCardUpgradeIdList(context);
+		if (!cardIdList.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < cardIdList.size(); i++) {
+				if (i > 0) {
+					sb.append(",");
+				}
+				sb.append(cardIdList.get(i));
+			}
+			editCardIdList.setText(sb.toString());
+		}
+
 		// 加载账号身份信息（始终展示）
 		String nsid = AppSettings.getNsid(context);
 		String deviceUid = AppSettings.getDeviceUid(context);
@@ -234,6 +249,30 @@ public class SettingsFragment extends Fragment {
 		String appliVersion = editAppliVersion.getText().toString().trim();
 		if (!appliVersion.isEmpty()) {
 			AppSettings.setAppliVersion(context, appliVersion);
+		}
+
+		// card_upgrade_id_list（校验逗号分隔的每个值为正整数）
+		String cardIdListStr = editCardIdList.getText().toString().trim();
+		if (!cardIdListStr.isEmpty()) {
+			String[] parts = cardIdListStr.split(",");
+			for (String part : parts) {
+				String trimmed = part.trim();
+				if (!trimmed.isEmpty()) {
+					try {
+						int value = Integer.parseInt(trimmed);
+						if (value <= 0) {
+							editCardIdList.setError(getString(R.string.settings_card_upgrade_id_list_invalid));
+							return;
+						}
+					} catch (NumberFormatException e) {
+						editCardIdList.setError(getString(R.string.settings_card_upgrade_id_list_invalid));
+						return;
+					}
+				}
+			}
+			AppSettings.setCardUpgradeIdList(context, cardIdListStr);
+		} else {
+			AppSettings.setCardUpgradeIdList(context, null);
 		}
 
 		// 账号身份字段（从只读展示区获取）

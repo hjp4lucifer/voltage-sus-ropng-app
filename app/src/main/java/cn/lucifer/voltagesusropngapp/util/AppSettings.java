@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import cn.lucifer.voltage.sus.api.BaseApi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 全局配置管理，封装 SharedPreferences 的读写操作
  */
@@ -20,6 +23,7 @@ public final class AppSettings {
 	private static final String KEY_PUKEY = "pu_key";
 	private static final String KEY_PFID = "pfid";
 	private static final String KEY_ROOKIE = "rookie";
+	private static final String KEY_CARD_UPGRADE_ID_LIST = "card_upgrade_id_list";
 
 	private static final int DEFAULT_ARENA_ID = 117;
 	private static final String DEFAULT_RAID_ID = null;
@@ -115,6 +119,38 @@ public final class AppSettings {
 
 	public static void setRookie(Context context, boolean rookie) {
 		getPrefs(context).edit().putBoolean(KEY_ROOKIE, rookie).apply();
+	}
+
+	// ==================== card_upgrade_id_list ====================
+
+	/**
+	 * 获取卡牌升阶ID列表（逗号分隔字符串解析为 List<Integer>）
+	 */
+	public static List<Integer> getCardUpgradeIdList(Context context) {
+		String raw = getPrefs(context).getString(KEY_CARD_UPGRADE_ID_LIST, null);
+		List<Integer> result = new ArrayList<>();
+		if (raw == null || raw.trim().isEmpty()) {
+			return result;
+		}
+		String[] parts = raw.split(",");
+		for (String part : parts) {
+			String trimmed = part.trim();
+			if (!trimmed.isEmpty()) {
+				try {
+					result.add(Integer.parseInt(trimmed));
+				} catch (NumberFormatException e) {
+					// 忽略无法解析的值
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 保存卡牌升阶ID列表（原始逗号分隔字符串）
+	 */
+	public static void setCardUpgradeIdList(Context context, String cardIdListStr) {
+		getPrefs(context).edit().putString(KEY_CARD_UPGRADE_ID_LIST, cardIdListStr).apply();
 	}
 
 	// ==================== 公共覆盖方法 ====================

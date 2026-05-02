@@ -55,6 +55,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:padding="12dp"
+                android:layout_marginBottom="8dp"
                 android:background="#F0F0F0">
 
             <TextView
@@ -76,6 +77,41 @@
 
             <Button
                     android:id="@+id/btn_arena_battle_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_start"
+                    android:minHeight="36dp"/>
+        </LinearLayout>
+
+        <!-- 卡牌升阶卡片 -->
+        <LinearLayout
+                android:id="@+id/card_card_upgrade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:background="#F0F0F0">
+
+            <TextView
+                    android:id="@+id/text_card_upgrade_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/action_card_upgrade"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:id="@+id/text_card_upgrade_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_not_running"
+                    android:textSize="14sp"
+                    android:layout_marginRight="8dp"/>
+
+            <Button
+                    android:id="@+id/btn_card_upgrade_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_start"

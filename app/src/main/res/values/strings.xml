@@ -9,6 +9,7 @@
     <!-- 功能卡片 -->
     <string name="action_auto_login">自动登录</string>
     <string name="action_arena_battle">竞技场对战</string>
+    <string name="action_card_upgrade">卡牌升阶</string>
     <string name="btn_start">开始</string>
     <string name="btn_stop">停止</string>
     <string name="status_not_running">未运行</string>
@@ -21,6 +22,9 @@
     <string name="settings_arena_id">Arena ID</string>
     <string name="settings_raid_id">Raid ID</string>
     <string name="settings_appli_version">版本号</string>
+    <string name="settings_card_upgrade_id_list">升阶卡牌ID</string>
+    <string name="settings_card_upgrade_id_list_hint">逗号分隔，如：1,3,5,10</string>
+    <string name="settings_card_upgrade_id_list_invalid">请输入有效的正整数，逗号分隔</string>
     <string name="btn_save">保存</string>
     <string name="settings_saved">保存成功</string>
 

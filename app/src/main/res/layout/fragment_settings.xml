@@ -224,7 +224,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="12dp">
 
         <TextView
                 android:layout_width="120dp"
@@ -240,6 +240,31 @@
                 android:inputType="text"
                 android:hint="9.2.0"
                 android:textSize="16sp"/>
+    </LinearLayout>
+
+    <!-- 卡牌升阶ID列表 -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_card_upgrade_id_list"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp"/>
+
+        <EditText
+                android:id="@+id/edit_card_upgrade_id_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="3"
+                android:inputType="text"
+                android:hint="@string/settings_card_upgrade_id_list_hint"
+                android:textSize="14sp"
+                android:gravity="top|start"/>
     </LinearLayout>
 
     <!-- 保存按钮 -->

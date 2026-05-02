@@ -38,6 +38,7 @@ public class MainUIControl {
 	 */
 	public static final String SERVICE_AUTO_LOGIN = "auto_login";
 	public static final String SERVICE_ARENA = "arena";
+	public static final String SERVICE_CARD_UPGRADE = "card_upgrade";
 
 	private Context context;
 
