@@ -238,6 +238,43 @@ public final class AppSettings {
 	}
 
 	/**
+	 * 获取当前正在运行的 Service 名称，并校验 Service 是否真正存活。
+	 * 若 SP 中有记录但 Service 实际未运行（如进程被杀导致 onDestroy 未执行），则自动清除残留标志并返回 null。
+	 */
+	public static String getRunningServiceChecked(Context context) {
+		String serviceName = getPrefs(context).getString(KEY_RUNNING_SERVICE, null);
+		if (serviceName == null) {
+			return null;
+		}
+		// 校验 Service 是否真正在运行
+		if (!isServiceRunning(context, serviceName)) {
+			clearRunningService(context);
+			return null;
+		}
+		return serviceName;
+	}
+
+	/**
+	 * 检查指定 Service 是否真正在运行
+	 */
+	private static boolean isServiceRunning(Context context, String serviceName) {
+		android.app.ActivityManager am = (android.app.ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		if (am == null) {
+			return false;
+		}
+		List<android.app.ActivityManager.RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
+		if (services == null) {
+			return false;
+		}
+		for (android.app.ActivityManager.RunningServiceInfo info : services) {
+			if (info.service.getClassName().equals(serviceName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * 设置当前正在运行的 Service 名称
 	 */
 	public static void setRunningService(Context context, String serviceName) {

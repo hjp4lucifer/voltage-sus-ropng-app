@@ -265,8 +265,8 @@ public class FunctionFragment extends Fragment {
 			rowView.setTag(R.id.tag_function_running, false);
 		}
 
-		// 点击进入聚焦态
-		btnEnter.setOnClickListener(new View.OnClickListener() {
+		// 点击整行进入聚焦态
+		rowView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (currentRunningService != null && !funcIdToServiceName(funcId).equals(currentRunningService)) {
@@ -512,7 +512,7 @@ public class FunctionFragment extends Fragment {
 	 * 从 SharedPreferences 恢复运行状态
 	 */
 	private void restoreRunningState() {
-		String runningService = AppSettings.getRunningService(getContext());
+		String runningService = AppSettings.getRunningServiceChecked(getContext());
 		if (runningService != null) {
 			currentRunningService = runningService;
 		} else {
