@@ -1,38 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <!-- 功能卡片区域 -->
-    <LinearLayout
+    <!-- 列表态：功能列表 -->
+    <ScrollView
+            android:id="@+id/layout_list_state"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+            <!-- 日常功能分组 -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/group_daily"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"/>
+
+            <LinearLayout
+                    android:id="@+id/group_daily"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+            <!-- 礼物功能分组 -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/group_present"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="4dp"/>
+
+            <LinearLayout
+                    android:id="@+id/group_present"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 聚焦态：功能运行 + 日志 -->
+    <LinearLayout
+            android:id="@+id/layout_focus_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:visibility="gone">
 
-        <!-- 自动登录卡片 -->
+        <!-- 顶部：返回箭头 + 标题 + 状态 + 开始按钮 -->
         <LinearLayout
-                android:id="@+id/card_auto_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="12dp"
-                android:layout_marginBottom="8dp"
+                android:padding="8dp"
                 android:background="#F0F0F0">
 
+            <ImageView
+                    android:id="@+id/btn_back"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_arrow_back_black_24dp"
+                    android:contentDescription="@string/btn_back"
+                    android:padding="6dp"/>
+
             <TextView
-                    android:id="@+id/text_auto_login_title"
+                    android:id="@+id/text_focus_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/action_auto_login"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:layout_marginLeft="4dp"/>
 
             <TextView
-                    android:id="@+id/text_auto_login_status"
+                    android:id="@+id/text_focus_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/status_not_running"
@@ -40,97 +94,163 @@
                     android:layout_marginRight="8dp"/>
 
             <Button
-                    android:id="@+id/btn_auto_login_start"
+                    android:id="@+id/btn_focus_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_start"
                     android:minHeight="36dp"/>
         </LinearLayout>
 
-        <!-- 竞技场对战卡片 -->
+        <!-- 参数区（动态显示/隐藏） -->
         <LinearLayout
-                android:id="@+id/card_arena_battle"
+                android:id="@+id/layout_params"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="12dp"
-                android:layout_marginBottom="8dp"
-                android:background="#F0F0F0">
+                android:orientation="vertical"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:visibility="gone">
 
-            <TextView
-                    android:id="@+id/text_arena_battle_title"
-                    android:layout_width="0dp"
+            <!-- 竞技场ID参数 -->
+            <LinearLayout
+                    android:id="@+id/param_arena_id_row"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/action_arena_battle"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
 
-            <TextView
-                    android:id="@+id/text_arena_battle_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/status_not_running"
-                    android:textSize="14sp"
-                    android:layout_marginRight="8dp"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_arena_id"
+                        android:textSize="14sp"/>
 
-            <Button
-                    android:id="@+id/btn_arena_battle_start"
-                    android:layout_width="wrap_content"
+                <EditText
+                        android:id="@+id/edit_arena_id"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
+            <!-- 升阶卡牌ID参数 -->
+            <LinearLayout
+                    android:id="@+id/param_card_upgrade_ids_row"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/btn_start"
-                    android:minHeight="36dp"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_card_upgrade_id_list"
+                        android:textSize="14sp"/>
+
+                <EditText
+                        android:id="@+id/edit_card_upgrade_ids"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        android:hint="@string/settings_card_upgrade_id_list_hint"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
+            <!-- 角色名参数 -->
+            <LinearLayout
+                    android:id="@+id/param_character_name_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/param_character_name"
+                        android:textSize="14sp"/>
+
+                <EditText
+                        android:id="@+id/edit_character_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
+            <!-- 排除名称参数 -->
+            <LinearLayout
+                    android:id="@+id/param_exclude_name_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/param_exclude_name"
+                        android:textSize="14sp"/>
+
+                <EditText
+                        android:id="@+id/edit_exclude_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
+            <!-- 最大次数参数 -->
+            <LinearLayout
+                    android:id="@+id/param_max_count_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/param_max_count"
+                        android:textSize="14sp"/>
+
+                <EditText
+                        android:id="@+id/edit_max_count"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
         </LinearLayout>
 
-        <!-- 卡牌升阶卡片 -->
-        <LinearLayout
-                android:id="@+id/card_card_upgrade"
+        <!-- 分隔线 -->
+        <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="12dp"
-                android:background="#F0F0F0">
+                android:layout_height="1dp"
+                android:background="#CCCCCC"/>
 
-            <TextView
-                    android:id="@+id/text_card_upgrade_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/action_card_upgrade"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-            <TextView
-                    android:id="@+id/text_card_upgrade_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/status_not_running"
-                    android:textSize="14sp"
-                    android:layout_marginRight="8dp"/>
-
-            <Button
-                    android:id="@+id/btn_card_upgrade_start"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_start"
-                    android:minHeight="36dp"/>
-        </LinearLayout>
+        <!-- 日志区域 -->
+        <ListView
+                android:id="@+id/listView_log"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
     </LinearLayout>
 
-    <!-- 分隔线 -->
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#CCCCCC"/>
-
-    <!-- 日志区域 -->
-    <ListView
-            android:id="@+id/listView_log"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-</LinearLayout>
+</FrameLayout>

@@ -6,16 +6,31 @@
     <string name="tab_stop">停止</string>
     <string name="tab_settings">设置</string>
 
-    <!-- 功能卡片 -->
+    <!-- 功能分组 -->
+    <string name="group_daily">日常功能</string>
+    <string name="group_present">礼物功能</string>
+
+    <!-- 功能名称 -->
     <string name="action_auto_login">自动登录</string>
     <string name="action_arena_battle">竞技场对战</string>
     <string name="action_card_upgrade">卡牌升阶</string>
+    <string name="action_present_character">领取角色礼物</string>
+    <string name="action_present_batch">批量领取礼物</string>
+
+    <!-- 通用按钮与状态 -->
     <string name="btn_start">开始</string>
     <string name="btn_stop">停止</string>
+    <string name="btn_back">返回</string>
     <string name="status_not_running">未运行</string>
     <string name="status_running">运行中</string>
     <string name="status_stopping">停止中…</string>
     <string name="hint_blocked_by_other">%1$s运行中</string>
+
+    <!-- 聚焦态参数 -->
+    <string name="param_character_name">角色名</string>
+    <string name="param_exclude_name">排除名称</string>
+    <string name="param_max_count">最大次数</string>
+    <string name="hint_character_name_required">请输入角色名</string>
 
     <!-- 设置页 -->
     <string name="settings_title">全局配置</string>
