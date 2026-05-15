@@ -18,6 +18,7 @@ import cn.lucifer.voltage.sus.api.present.PresentBoxApi;
 import cn.lucifer.voltage.sus.api.present.PresentBoxGetApi;
 import cn.lucifer.voltage.sus.resp.present.Item;
 import cn.lucifer.voltage.sus.resp.present.PresentBoxApiResp;
+import cn.lucifer.voltage.sus.thread.IWatchingRunning;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
@@ -28,7 +29,7 @@ import java.util.LinkedList;
 /**
  * 领取角色礼物服务：按角色名匹配礼物并逐个领取
  */
-public class AutoPresentCharacterService extends Service {
+public class AutoPresentCharacterService extends Service implements IWatchingRunning {
 
 	public static final String PRESENT_CHARACTER_TAG = "present_character_tag";
 

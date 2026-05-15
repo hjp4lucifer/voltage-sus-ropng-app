@@ -18,6 +18,7 @@ import cn.lucifer.voltage.sus.api.present.PresentBoxApi;
 import cn.lucifer.voltage.sus.api.present.PresentBoxGetApi;
 import cn.lucifer.voltage.sus.resp.present.Item;
 import cn.lucifer.voltage.sus.resp.present.PresentBoxApiResp;
+import cn.lucifer.voltage.sus.thread.IWatchingRunning;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
@@ -29,7 +30,7 @@ import java.util.List;
 /**
  * 批量领取礼物服务：按名字排除过滤，逐个领取礼物
  */
-public class AutoPresentBatchService extends Service {
+public class AutoPresentBatchService extends Service implements IWatchingRunning {
 
 	public static final String PRESENT_BATCH_TAG = "present_batch_tag";
 
