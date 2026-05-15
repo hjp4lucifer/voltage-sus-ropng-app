@@ -158,6 +158,9 @@ public class FunctionFragment extends Fragment {
 		btnBack.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (isCurrentFunctionRunning()) {
+					return;
+				}
 				switchToListState();
 			}
 		});
@@ -178,6 +181,9 @@ public class FunctionFragment extends Fragment {
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 					if (currentFocusFunction != null) {
+						if (isCurrentFunctionRunning()) {
+							return true;
+						}
 						switchToListState();
 						return true;
 					}
@@ -496,15 +502,18 @@ public class FunctionFragment extends Fragment {
 			textFocusStatus.setText(statusText);
 			btnFocusStart.setEnabled(false);
 			btnFocusStart.setText(R.string.status_running);
+			btnBack.setEnabled(false);
 		} else if (currentRunningService != null) {
 			// 其他功能正在运行
 			textFocusStatus.setText(getString(R.string.hint_blocked_by_other, getServiceDisplayName(currentRunningService)));
 			btnFocusStart.setEnabled(false);
+			btnBack.setEnabled(false);
 		} else {
 			// 空闲
 			textFocusStatus.setText(R.string.status_not_running);
 			btnFocusStart.setEnabled(true);
 			btnFocusStart.setText(R.string.btn_start);
+			btnBack.setEnabled(true);
 		}
 	}
 
@@ -523,6 +532,16 @@ public class FunctionFragment extends Fragment {
 	}
 
 	// ==================== 辅助方法 ====================
+
+	/**
+	 * 判断当前聚焦的功能是否正在运行
+	 */
+	private boolean isCurrentFunctionRunning() {
+		if (currentRunningService == null || currentFocusFunction == null) {
+			return false;
+		}
+		return currentRunningService.equals(funcIdToServiceName(currentFocusFunction));
+	}
 
 	private void addLog(String text) {
 		logAdapter.addFirst(text);

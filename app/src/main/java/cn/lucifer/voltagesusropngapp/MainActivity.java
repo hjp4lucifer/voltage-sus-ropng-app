@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 	 * 处理停止按钮点击
 	 */
 	private void handleStopClick() {
-		String runningService = AppSettings.getRunningServiceChecked(this);
+		String runningService = AppSettings.getRunningService(this);
 		if (runningService == null) {
 			// 空闲态，不响应
 			return;
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 	 * 更新停止 tab 的可用状态
 	 */
 	public void updateStopTabState() {
-		String runningService = AppSettings.getRunningServiceChecked(this);
+		String runningService = AppSettings.getRunningService(this);
 		MenuItem stopItem = navigation.getMenu().findItem(R.id.navigation_stop);
 		if (stopItem != null) {
 			stopItem.setEnabled(runningService != null);
