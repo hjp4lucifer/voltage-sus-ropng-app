@@ -24,6 +24,9 @@ public final class AppSettings {
 	private static final String KEY_PFID = "pfid";
 	private static final String KEY_ROOKIE = "rookie";
 	private static final String KEY_CARD_UPGRADE_ID_LIST = "card_upgrade_id_list";
+	private static final String KEY_CHARACTER_NAME = "character_name";
+	private static final String KEY_EXCLUDE_NAME = "exclude_name";
+	private static final String KEY_MAX_COUNT = "max_count";
 
 	private static final int DEFAULT_ARENA_ID = 117;
 	private static final String DEFAULT_RAID_ID = null;
@@ -33,6 +36,7 @@ public final class AppSettings {
 	private static final String DEFAULT_PUKEY = null;
 	private static final int DEFAULT_PFID = 8;
 	private static final boolean DEFAULT_ROOKIE = true;
+	private static final int DEFAULT_MAX_COUNT = 100;
 
 	private AppSettings() {
 	}
@@ -151,6 +155,43 @@ public final class AppSettings {
 	 */
 	public static void setCardUpgradeIdList(Context context, String cardIdListStr) {
 		getPrefs(context).edit().putString(KEY_CARD_UPGRADE_ID_LIST, cardIdListStr).apply();
+	}
+
+	/**
+	 * 获取卡牌升阶ID列表原始字符串
+	 */
+	public static String getCardUpgradeIdListRaw(Context context) {
+		return getPrefs(context).getString(KEY_CARD_UPGRADE_ID_LIST, null);
+	}
+
+	// ==================== character_name ====================
+
+	public static String getCharacterName(Context context) {
+		return getPrefs(context).getString(KEY_CHARACTER_NAME, null);
+	}
+
+	public static void setCharacterName(Context context, String characterName) {
+		getPrefs(context).edit().putString(KEY_CHARACTER_NAME, characterName).apply();
+	}
+
+	// ==================== exclude_name ====================
+
+	public static String getExcludeName(Context context) {
+		return getPrefs(context).getString(KEY_EXCLUDE_NAME, null);
+	}
+
+	public static void setExcludeName(Context context, String excludeName) {
+		getPrefs(context).edit().putString(KEY_EXCLUDE_NAME, excludeName).apply();
+	}
+
+	// ==================== max_count ====================
+
+	public static int getMaxCount(Context context) {
+		return getPrefs(context).getInt(KEY_MAX_COUNT, DEFAULT_MAX_COUNT);
+	}
+
+	public static void setMaxCount(Context context, int maxCount) {
+		getPrefs(context).edit().putInt(KEY_MAX_COUNT, maxCount).apply();
 	}
 
 	// ==================== 公共覆盖方法 ====================

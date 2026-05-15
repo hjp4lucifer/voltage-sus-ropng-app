@@ -31,6 +31,8 @@
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoLoginService"></service>
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoArenaService"></service>
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService"></service>
+        <service android:name="cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService"></service>
+        <service android:name="cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService"></service>
     </application>
 
 </manifest>
