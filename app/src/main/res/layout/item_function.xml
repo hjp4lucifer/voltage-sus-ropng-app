@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_function_row"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
               android:gravity="center_vertical"
               android:padding="12dp"
               android:layout_marginBottom="8dp"
-              android:background="#F0F0F0">
+              android:background="#F0F0F0"
+              android:clickable="true"
+              android:focusable="true">
 
     <TextView
             android:id="@+id/text_function_title"
