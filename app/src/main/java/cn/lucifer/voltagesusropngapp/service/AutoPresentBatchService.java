@@ -10,22 +10,17 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import cn.lucifer.util.HttpClient5Helper;
 import cn.lucifer.util.LogUtils;
 import cn.lucifer.util.StrUtils;
 import cn.lucifer.voltage.sus.api.BaseApi;
-import cn.lucifer.voltage.sus.api.present.PresentBoxApi;
-import cn.lucifer.voltage.sus.api.present.PresentBoxGetApi;
-import cn.lucifer.voltage.sus.resp.present.Item;
-import cn.lucifer.voltage.sus.resp.present.PresentBoxApiResp;
+import cn.lucifer.voltage.sus.auto.AutoPresent;
+import cn.lucifer.voltage.sus.auto.OverrideSettingsCallback;
 import cn.lucifer.voltage.sus.thread.IWatchingRunning;
+import cn.lucifer.voltage.sus.thread.WatchingThread;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
 import cn.lucifer.voltagesusropngapp.util.MainUIUtils;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 批量领取礼物服务：按名字排除过滤，逐个领取礼物
@@ -36,12 +31,13 @@ public class AutoPresentBatchService extends Service implements IWatchingRunning
 
 	public static final String PRESENT_BATCH_START = "present_batch_start";
 
-	private static final int RANDOM_MAX_TIME = 0;
-
 	/**
 	 * 电源锁
 	 */
 	private PowerManager.WakeLock mWakeLock;
+
+	private AutoPresent autoPresent;
+	private WatchingThread watchingThread;
 
 	/**
 	 * 运行标志位，用于优雅停止
@@ -56,6 +52,9 @@ public class AutoPresentBatchService extends Service implements IWatchingRunning
 		public void onReceive(Context context, Intent intent) {
 			Log.i(LogPrinter.LOG_TAG, "AutoPresentBatchService received stop broadcast");
 			running = false;
+			if (autoPresent != null) {
+				autoPresent.setRunning(false);
+			}
 		}
 	};
 
@@ -101,13 +100,28 @@ public class AutoPresentBatchService extends Service implements IWatchingRunning
 		// 发送运行状态广播
 		MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING, MainUIControl.SERVICE_PRESENT_BATCH, null);
 
-		// 在新线程中执行
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				watchThreadPoolExecutor();
-			}
-		}).start();
+		if (null == autoPresent) {
+			autoPresent = new AutoPresent();
+			autoPresent.setRunningCallback(new AutoPresent.RunningCallback() {
+				@Override
+				public void onDetailUpdate(String detail) {
+					MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING,
+							MainUIControl.SERVICE_PRESENT_BATCH, detail);
+				}
+			});
+
+			// 设置 API 配置覆盖回调
+			final Context context = this;
+			autoPresent.setOverrideSettings(new OverrideSettingsCallback() {
+				@Override
+				public void overrideSettings(BaseApi api) {
+					AppSettings.applyOverrideSettings(context, api);
+				}
+			});
+
+			watchingThread = new WatchingThread("watchingAutoPresentBatch", this);
+			watchingThread.start();
+		}
 
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -147,6 +161,9 @@ public class AutoPresentBatchService extends Service implements IWatchingRunning
 	@Override
 	public void onDestroy() {
 		running = false;
+		if (autoPresent != null) {
+			autoPresent.setRunning(false);
+		}
 
 		// 注销停止广播接收器
 		try {
@@ -169,40 +186,8 @@ public class AutoPresentBatchService extends Service implements IWatchingRunning
 		String excludeName = AppSettings.getExcludeName(this);
 		int maxCount = AppSettings.getMaxCount(this);
 
-		LogUtils.info(StrUtils.generateMessage("批量领取礼物开始, 排除名称={}, 最大次数={}", excludeName, maxCount));
-
 		try {
-			PresentBoxApi api = new PresentBoxApi();
-			api.setPresentId(0);
-			applyOverrideSettings(api);
-
-			for (int i = 0; i < maxCount; i++) {
-				if (!running) {
-					break;
-				}
-
-				String resp = requestServer(api);
-				PresentBoxApiResp apiResp = api.parseResp(resp);
-
-				Item item = findItem(apiResp, excludeName);
-				if (item == null) {
-					LogUtils.info("没有找到合适的礼物");
-					break;
-				}
-
-				api.setPresentId(item.present_id);
-
-				LogUtils.info(StrUtils.generateMessage("i={}, name={}, send_date={}", i, item.name, item.send_date));
-
-				// 领取该礼物
-				getPresent(item.present_id);
-
-				Thread.sleep(1000 + (int) (Math.random() * RANDOM_MAX_TIME));
-			}
-
-			if (running) {
-				LogUtils.info("批量领取礼物已完成！");
-			}
+			autoPresent.runPresentBatch(excludeName, maxCount);
 		} catch (Exception e) {
 			Log.e("presentBatch", "批量领取礼物异常！", e);
 			LogUtils.error("批量领取礼物异常！", e);
@@ -212,65 +197,5 @@ public class AutoPresentBatchService extends Service implements IWatchingRunning
 		if (running) {
 			stopSelf();
 		}
-	}
-
-	/**
-	 * 在礼物列表中查找符合条件的礼物（排除包含排除名称的）
-	 *
-	 * @param apiResp    响应数据
-	 * @param excludeName 排除名称，为空时不排除
-	 * @return 符合条件的礼物，null 表示没有合适的礼物
-	 */
-	private Item findItem(PresentBoxApiResp apiResp, String excludeName) {
-		if (apiResp.data == null || apiResp.data.item_list == null || apiResp.data.item_list.isEmpty()) {
-			return null;
-		}
-
-		List<Item> itemList = apiResp.data.item_list;
-		for (Item item : itemList) {
-			if (excludeName != null && !excludeName.isEmpty() && item.name.contains(excludeName)) {
-				continue;
-			}
-			return item;
-		}
-		return null;
-	}
-
-	/**
-	 * 领取指定礼物
-	 */
-	private void getPresent(int presentId) throws Exception {
-		PresentBoxGetApi getApi = new PresentBoxGetApi();
-		LinkedList<Integer> presentIdList = new LinkedList<>();
-		presentIdList.add(presentId);
-		getApi.setPresentIdList(presentIdList);
-		applyOverrideSettings(getApi);
-
-		requestServer(getApi);
-		LogUtils.info(StrUtils.generateMessage("领取礼物完成, present_id={}", presentId));
-	}
-
-	/**
-	 * 应用覆盖配置到 API
-	 */
-	private void applyOverrideSettings(BaseApi api) {
-		AppSettings.applyOverrideSettings(this, api);
-	}
-
-	/**
-	 * 发送请求到服务器
-	 */
-	private String requestServer(BaseApi api) throws Exception {
-		String url = api.buildUrl();
-		LogUtils.info(StrUtils.generateMessage("[POST] url={}", url));
-
-		byte[] respData = HttpClient5Helper.httpPost(url, api.buildRequestBody(), api.generateDefaultRequestHeads());
-		String respStr = new String(respData);
-
-		if (api.ignoreResult) {
-			return respStr;
-		}
-
-		return respStr;
 	}
 }

@@ -22,7 +22,6 @@ import cn.lucifer.voltagesusropngapp.R;
 import cn.lucifer.voltagesusropngapp.adt.LogAdapter;
 import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
 import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
-import cn.lucifer.voltagesusropngapp.service.AutoLoginService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
@@ -36,7 +35,6 @@ public class FunctionFragment extends Fragment {
 
 	// ==================== 功能标识常量 ====================
 
-	private static final String FUNC_AUTO_LOGIN = "auto_login";
 	private static final String FUNC_ARENA_BATTLE = "arena_battle";
 	private static final String FUNC_CARD_UPGRADE = "card_upgrade";
 	private static final String FUNC_PRESENT_CHARACTER = "present_character";
@@ -237,7 +235,6 @@ public class FunctionFragment extends Fragment {
 		groupDaily.removeAllViews();
 		groupPresent.removeAllViews();
 
-		addFunctionRow(groupDaily, FUNC_AUTO_LOGIN, R.string.action_auto_login);
 		addFunctionRow(groupDaily, FUNC_ARENA_BATTLE, R.string.action_arena_battle);
 		addFunctionRow(groupDaily, FUNC_CARD_UPGRADE, R.string.action_card_upgrade);
 
@@ -365,7 +362,7 @@ public class FunctionFragment extends Fragment {
 				editMaxCount.setText(String.valueOf(AppSettings.getMaxCount(getContext())));
 				break;
 			default:
-				// 自动登录等无参数功能，不显示参数区
+				// 无参数功能，不显示参数区
 				break;
 		}
 	}
@@ -384,12 +381,6 @@ public class FunctionFragment extends Fragment {
 		Intent intent;
 
 		switch (currentFocusFunction) {
-			case FUNC_AUTO_LOGIN:
-				intent = new Intent(context, AutoLoginService.class);
-				intent.putExtra(AutoLoginService.AUTO_LOGIN_TAG, AutoLoginService.AUTO_LOGIN_START);
-				context.startService(intent);
-				break;
-
 			case FUNC_ARENA_BATTLE:
 				// 保存参数
 				saveArenaParams();
@@ -552,8 +543,6 @@ public class FunctionFragment extends Fragment {
 	 */
 	private String funcIdToServiceName(String funcId) {
 		switch (funcId) {
-			case FUNC_AUTO_LOGIN:
-				return MainUIControl.SERVICE_AUTO_LOGIN;
 			case FUNC_ARENA_BATTLE:
 				return MainUIControl.SERVICE_ARENA;
 			case FUNC_CARD_UPGRADE:
@@ -572,8 +561,6 @@ public class FunctionFragment extends Fragment {
 	 */
 	private String getFunctionDisplayName(String funcId) {
 		switch (funcId) {
-			case FUNC_AUTO_LOGIN:
-				return getString(R.string.action_auto_login);
 			case FUNC_ARENA_BATTLE:
 				return getString(R.string.action_arena_battle);
 			case FUNC_CARD_UPGRADE:
@@ -591,9 +578,7 @@ public class FunctionFragment extends Fragment {
 	 * 获取服务名称对应的显示名称
 	 */
 	private String getServiceDisplayName(String serviceName) {
-		if (MainUIControl.SERVICE_AUTO_LOGIN.equals(serviceName)) {
-			return getString(R.string.action_auto_login);
-		} else if (MainUIControl.SERVICE_ARENA.equals(serviceName)) {
+		if (MainUIControl.SERVICE_ARENA.equals(serviceName)) {
 			return getString(R.string.action_arena_battle);
 		} else if (MainUIControl.SERVICE_CARD_UPGRADE.equals(serviceName)) {
 			return getString(R.string.action_card_upgrade);

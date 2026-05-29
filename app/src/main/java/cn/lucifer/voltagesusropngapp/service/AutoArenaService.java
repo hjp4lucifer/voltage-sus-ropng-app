@@ -109,7 +109,7 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 							MainUIControl.SERVICE_ARENA, detail);
 				}
 			});
-			watchingThread = new WatchingThread("watchingAutoArena", autoArena, this);
+			watchingThread = new WatchingThread("watchingAutoArena", this);
 			watchingThread.start();
 		}
 
@@ -182,8 +182,6 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 				arenaId, raidId, appliVersion));
 
 		try {
-			autoArena.setUp();
-
 			// 设置 API 配置覆盖回调（使用公共方法，含身份字段覆盖）
 			final Context context = this;
 			autoArena.setOverrideSettings(new OverrideSettingsCallback() {
@@ -194,7 +192,6 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 			});
 
 			autoArena.runArena(200);
-			autoArena.tearDown();
 		} catch (Exception e) {
 			Log.e("autoArena", "autoArena Exception!!!", e);
 			LogUtils.error("autoArena Exception!!!", e);

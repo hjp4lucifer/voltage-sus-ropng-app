@@ -1,0 +1,6 @@
+refactor(service): 移除自动登录功能及适配BaseAuto重构
+
+- 删除AutoLoginService及其在AndroidManifest中的声明
+- 移除FunctionFragment、MainUIControl、strings.xml中自动登录相关代码
+- 适配WatchingThread构造器变更（移除baseAuto参数）
+- 移除AutoCardUpgradeService中对已删除的setUp/tearDown调用

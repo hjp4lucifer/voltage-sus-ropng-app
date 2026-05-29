@@ -11,7 +11,6 @@
     <string name="group_present">礼物功能</string>
 
     <!-- 功能名称 -->
-    <string name="action_auto_login">自动登录</string>
     <string name="action_arena_battle">竞技场对战</string>
     <string name="action_card_upgrade">卡牌升阶</string>
     <string name="action_present_character">领取角色礼物</string>

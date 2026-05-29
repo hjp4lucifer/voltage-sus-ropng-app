@@ -111,7 +111,7 @@ public class AutoCardUpgradeService extends Service implements IWatchingRunning 
 							MainUIControl.SERVICE_CARD_UPGRADE, detail);
 				}
 			});
-			watchingThread = new WatchingThread("watchingAutoCardUpgrade", autoCardUpgrade, this);
+			watchingThread = new WatchingThread("watchingAutoCardUpgrade", this);
 			watchingThread.start();
 		}
 
@@ -181,7 +181,6 @@ public class AutoCardUpgradeService extends Service implements IWatchingRunning 
 		LogUtils.info(StrUtils.generateMessage("卡牌升阶开始, cardIdList={}", cardIdList));
 
 		try {
-			autoCardUpgrade.setUp();
 			autoCardUpgrade.setCardIdList(cardIdList);
 
 			// 设置 API 配置覆盖回调（使用公共方法，含身份字段覆盖）
@@ -194,7 +193,6 @@ public class AutoCardUpgradeService extends Service implements IWatchingRunning 
 			});
 
 			autoCardUpgrade.runCardUpgrade();
-			autoCardUpgrade.tearDown();
 		} catch (Exception e) {
 			Log.e("autoCardUpgrade", "autoCardUpgrade Exception!!!", e);
 			LogUtils.error("autoCardUpgrade Exception!!!", e);
