@@ -2,14 +2,14 @@
 setlocal enabledelayedexpansion
 
 rem =====================================================================
-rem  release APK 打包核心脚本 (由 build-release.bat 在独立窗口中调用)
+rem  release APK 打包核心脚本 (在 build-release.bat 打开的窗口中手动执行)
 rem  产物: app/build/outputs/apk/release/app-release-<versionName>.apk
 rem  说明:
-rem    1. 依赖外部已加载的 JAVA_HOME_8 环境
+rem    1. 校验 JAVA_HOME_8 环境(launcher 不校验, 在此兜底)
 rem    2. 版本号自动从 app/build.gradle 的 versionName 解析
 rem    3. 打包前删除旧的同名产物并确认删除成功, 防止拿到旧包
 rem    4. 使用项目根目录下的 gradlew 打包
-rem    5. 无论成功或失败, 窗口都会停留等待按键(便于查看结果)
+rem    5. 跑完自然结束, 窗口由 cmd /k 保持
 rem =====================================================================
 
 set "ERROR_FLAG=0"
@@ -152,5 +152,4 @@ if "%ERROR_FLAG%"=="1" (
     echo [OK] 脚本执行结束。
 )
 echo.
-pause
 endlocal
