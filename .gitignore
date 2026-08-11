@@ -91,3 +91,6 @@ en=**/
 /openspec/
 /commit_msg.txt
 logs/
+
+# 打包产物输出目录
+/release/

@@ -86,10 +86,16 @@ if not defined VERSION_NAME (
 echo [OK] 版本号: %VERSION_NAME%
 
 rem =====================================================================
-rem 4. 计算产物路径并删除旧的同名产物
+rem 4. 定义产物输出目录并删除旧的同名产物
 rem =====================================================================
 set "OUT_DIR=%PROJECT_DIR%app\build\outputs\apk\release"
-set "TARGET_APK=%OUT_DIR%\app-release-%VERSION_NAME%.apk"
+set "DEST_DIR=%PROJECT_DIR%release"
+set "TARGET_APK=%DEST_DIR%\app-release-%VERSION_NAME%.apk"
+
+rem 确保根目录 release/ 存在
+if not exist "%DEST_DIR%" (
+    mkdir "%DEST_DIR%"
+)
 
 if exist "%TARGET_APK%" (
     del /q "%TARGET_APK%"
@@ -116,7 +122,7 @@ if errorlevel 1 (
 )
 
 rem =====================================================================
-rem 6. 重命名产物为 app-release-<versionName>.apk
+rem 6. 将产物移动到根目录 release/ 并重命名为 app-release-<versionName>.apk
 rem    优先找 app-release.apk; 若未配置签名则产物为 app-release-unsigned.apk
 rem =====================================================================
 set "RAW_APK=%OUT_DIR%\app-release.apk"
@@ -129,9 +135,9 @@ if not exist "%RAW_APK%" (
     goto :end
 )
 
-ren "%RAW_APK%" "app-release-%VERSION_NAME%.apk"
+move /y "%RAW_APK%" "%TARGET_APK%" >nul
 if not exist "%TARGET_APK%" (
-    echo [ERROR] 产物重命名失败: %TARGET_APK%
+    echo [ERROR] 产物移动失败: %TARGET_APK%
     set "ERROR_FLAG=1"
     goto :end
 )
