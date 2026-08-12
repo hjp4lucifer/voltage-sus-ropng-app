@@ -113,8 +113,12 @@ if exist "%TARGET_APK%" (
 rem =====================================================================
 rem 5. 执行 Gradle 打包
 rem =====================================================================
-echo [INFO] 开始打包 release, 请稍候...
-call "%PROJECT_DIR%gradlew.bat" assembleRelease
+rem 限制打包时 Gradle JVM 内存(仅本次打包生效, 不污染全局配置)
+rem 项目较小, 1G 堆已足够; 配合 --no-daemon 让进程用完即退, 减少系统内存压力
+set "GRADLE_OPTS=%GRADLE_OPTS% -Xmx1024m"
+echo [INFO] 开始打包 release (JVM 堆上限 1024m, 关闭 daemon), 请稍候...
+call "%PROJECT_DIR%gradlew.bat" assembleRelease --no-daemon
+set "GRADLE_OPTS="
 if errorlevel 1 (
     echo [ERROR] Gradle 打包失败!
     set "ERROR_FLAG=1"
