@@ -485,11 +485,9 @@ public class FunctionFragment extends Fragment {
 
 		String serviceName = funcIdToServiceName(currentFocusFunction);
 		if (serviceName != null && serviceName.equals(currentRunningService)) {
-			// 当前聚焦的功能正在运行
-			String statusText = getString(R.string.status_running);
-			if (currentRunningDetail != null) {
-				statusText += " (" + currentRunningDetail + ")";
-			}
+			// 当前聚焦的功能正在运行：第二行直接展示运行详情（无详情时回退为「运行中」）
+			String statusText = currentRunningDetail != null
+					? currentRunningDetail : getString(R.string.status_running);
 			textFocusStatus.setText(statusText);
 			btnFocusStart.setEnabled(false);
 			btnFocusStart.setText(R.string.status_running);
