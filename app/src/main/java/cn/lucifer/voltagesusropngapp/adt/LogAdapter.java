@@ -26,7 +26,7 @@ public class LogAdapter extends BaseAdapter {
 	}
 
 	private final int padding = 5;
-	private final int maxCount = 50;
+	private final int maxCount = 100;
 	private boolean oddCount;
 
 	public void addFirst(String text) {
