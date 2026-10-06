@@ -24,6 +24,7 @@ import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
 import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService;
+import cn.lucifer.voltagesusropngapp.service.AutoRaidGachaService;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
@@ -36,6 +37,7 @@ public class FunctionFragment extends Fragment {
 	// ==================== 功能标识常量 ====================
 
 	private static final String FUNC_ARENA_BATTLE = "arena_battle";
+	private static final String FUNC_RAID_GACHA = "raid_gacha";
 	private static final String FUNC_CARD_UPGRADE = "card_upgrade";
 	private static final String FUNC_PRESENT_CHARACTER = "present_character";
 	private static final String FUNC_PRESENT_BATCH = "present_batch";
@@ -44,6 +46,7 @@ public class FunctionFragment extends Fragment {
 
 	private View layoutListState;
 	private LinearLayout groupDaily;
+	private LinearLayout groupEvent;
 	private LinearLayout groupPresent;
 
 	// ==================== 聚焦态视图 ====================
@@ -58,6 +61,8 @@ public class FunctionFragment extends Fragment {
 	// 聚焦态参数行
 	private View paramArenaIdRow;
 	private EditText editArenaId;
+	private View paramRaidIdRow;
+	private EditText editRaidId;
 	private View paramCardUpgradeIdsRow;
 	private EditText editCardUpgradeIds;
 	private View paramCharacterNameRow;
@@ -125,6 +130,7 @@ public class FunctionFragment extends Fragment {
 		// 列表态视图
 		layoutListState = root.findViewById(R.id.layout_list_state);
 		groupDaily = root.findViewById(R.id.group_daily);
+		groupEvent = root.findViewById(R.id.group_event);
 		groupPresent = root.findViewById(R.id.group_present);
 
 		// 聚焦态视图
@@ -138,6 +144,8 @@ public class FunctionFragment extends Fragment {
 		// 参数行
 		paramArenaIdRow = root.findViewById(R.id.param_arena_id_row);
 		editArenaId = root.findViewById(R.id.edit_arena_id);
+		paramRaidIdRow = root.findViewById(R.id.param_raid_id_row);
+		editRaidId = root.findViewById(R.id.edit_raid_id);
 		paramCardUpgradeIdsRow = root.findViewById(R.id.param_card_upgrade_ids_row);
 		editCardUpgradeIds = root.findViewById(R.id.edit_card_upgrade_ids);
 		paramCharacterNameRow = root.findViewById(R.id.param_character_name_row);
@@ -233,11 +241,17 @@ public class FunctionFragment extends Fragment {
 	 */
 	private void refreshFunctionList() {
 		groupDaily.removeAllViews();
+		groupEvent.removeAllViews();
 		groupPresent.removeAllViews();
 
-		addFunctionRow(groupDaily, FUNC_ARENA_BATTLE, R.string.action_arena_battle);
+		// 日常功能
 		addFunctionRow(groupDaily, FUNC_CARD_UPGRADE, R.string.action_card_upgrade);
 
+		// Event 功能
+		addFunctionRow(groupEvent, FUNC_ARENA_BATTLE, R.string.action_arena_battle);
+		addFunctionRow(groupEvent, FUNC_RAID_GACHA, R.string.action_raid_gacha);
+
+		// 礼物功能
 		addFunctionRow(groupPresent, FUNC_PRESENT_CHARACTER, R.string.action_present_character);
 		addFunctionRow(groupPresent, FUNC_PRESENT_BATCH, R.string.action_present_batch);
 	}
@@ -324,6 +338,7 @@ public class FunctionFragment extends Fragment {
 		// 先隐藏所有参数
 		layoutParams.setVisibility(View.GONE);
 		paramArenaIdRow.setVisibility(View.GONE);
+		paramRaidIdRow.setVisibility(View.GONE);
 		paramCardUpgradeIdsRow.setVisibility(View.GONE);
 		paramCharacterNameRow.setVisibility(View.GONE);
 		paramExcludeNameRow.setVisibility(View.GONE);
@@ -334,6 +349,14 @@ public class FunctionFragment extends Fragment {
 				layoutParams.setVisibility(View.VISIBLE);
 				paramArenaIdRow.setVisibility(View.VISIBLE);
 				editArenaId.setText(String.valueOf(AppSettings.getArenaId(getContext())));
+				break;
+			case FUNC_RAID_GACHA:
+				layoutParams.setVisibility(View.VISIBLE);
+				paramRaidIdRow.setVisibility(View.VISIBLE);
+				String raidId = AppSettings.getRaidId(getContext());
+				if (raidId != null) {
+					editRaidId.setText(raidId);
+				}
 				break;
 			case FUNC_CARD_UPGRADE:
 				layoutParams.setVisibility(View.VISIBLE);
@@ -386,6 +409,14 @@ public class FunctionFragment extends Fragment {
 				saveArenaParams();
 				intent = new Intent(context, AutoArenaService.class);
 				intent.putExtra(AutoArenaService.ARENA_BATTLE_TAG, AutoArenaService.ARENA_BATTLE_START);
+				context.startService(intent);
+				break;
+
+			case FUNC_RAID_GACHA:
+				// 保存参数
+				saveRaidGachaParams();
+				intent = new Intent(context, AutoRaidGachaService.class);
+				intent.putExtra(AutoRaidGachaService.RAID_GACHA_TAG, AutoRaidGachaService.RAID_GACHA_START);
 				context.startService(intent);
 				break;
 
@@ -461,6 +492,14 @@ public class FunctionFragment extends Fragment {
 				// 忽略无效输入
 			}
 		}
+	}
+
+	/**
+	 * 保存 Event 抽卡参数（空输入保存为 null，表示未配置）
+	 */
+	private void saveRaidGachaParams() {
+		String raidId = editRaidId.getText().toString().trim();
+		AppSettings.setRaidId(getContext(), raidId.isEmpty() ? null : raidId);
 	}
 
 	// ==================== 状态更新 ====================
@@ -543,6 +582,8 @@ public class FunctionFragment extends Fragment {
 		switch (funcId) {
 			case FUNC_ARENA_BATTLE:
 				return MainUIControl.SERVICE_ARENA;
+			case FUNC_RAID_GACHA:
+				return MainUIControl.SERVICE_RAID_GACHA;
 			case FUNC_CARD_UPGRADE:
 				return MainUIControl.SERVICE_CARD_UPGRADE;
 			case FUNC_PRESENT_CHARACTER:
@@ -561,6 +602,8 @@ public class FunctionFragment extends Fragment {
 		switch (funcId) {
 			case FUNC_ARENA_BATTLE:
 				return getString(R.string.action_arena_battle);
+			case FUNC_RAID_GACHA:
+				return getString(R.string.action_raid_gacha);
 			case FUNC_CARD_UPGRADE:
 				return getString(R.string.action_card_upgrade);
 			case FUNC_PRESENT_CHARACTER:
@@ -578,6 +621,8 @@ public class FunctionFragment extends Fragment {
 	private String getServiceDisplayName(String serviceName) {
 		if (MainUIControl.SERVICE_ARENA.equals(serviceName)) {
 			return getString(R.string.action_arena_battle);
+		} else if (MainUIControl.SERVICE_RAID_GACHA.equals(serviceName)) {
+			return getString(R.string.action_raid_gacha);
 		} else if (MainUIControl.SERVICE_CARD_UPGRADE.equals(serviceName)) {
 			return getString(R.string.action_card_upgrade);
 		} else if (MainUIControl.SERVICE_PRESENT_CHARACTER.equals(serviceName)) {

@@ -8,6 +8,7 @@
 
     <!-- 功能分组 -->
     <string name="group_daily">日常功能</string>
+    <string name="group_event">Event 功能</string>
     <string name="group_present">礼物功能</string>
 
     <!-- 功能名称 -->
@@ -15,6 +16,7 @@
     <string name="action_card_upgrade">卡牌升阶</string>
     <string name="action_present_character">领取角色礼物</string>
     <string name="action_present_batch">批量领取礼物</string>
+    <string name="action_raid_gacha">Event 抽卡</string>
 
     <!-- 通用按钮与状态 -->
     <string name="btn_start">开始</string>

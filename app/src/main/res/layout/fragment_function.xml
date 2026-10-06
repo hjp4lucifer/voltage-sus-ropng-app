@@ -32,6 +32,22 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"/>
 
+            <!-- Event 功能分组 -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/group_event"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="4dp"/>
+
+            <LinearLayout
+                    android:id="@+id/group_event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
             <!-- 礼物功能分组 -->
             <TextView
                     android:layout_width="match_parent"
@@ -143,6 +159,30 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:inputType="number"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
+            <!-- Raid ID 参数（Event 抽卡） -->
+            <LinearLayout
+                    android:id="@+id/param_raid_id_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_raid_id"
+                        android:textSize="14sp"/>
+
+                <EditText
+                        android:id="@+id/edit_raid_id"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:textSize="14sp"
                         android:layout_marginLeft="8dp"/>
             </LinearLayout>

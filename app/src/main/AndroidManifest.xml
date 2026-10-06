@@ -32,6 +32,7 @@
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService"></service>
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService"></service>
         <service android:name="cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService"></service>
+        <service android:name="cn.lucifer.voltagesusropngapp.service.AutoRaidGachaService"></service>
     </application>
 
 </manifest>

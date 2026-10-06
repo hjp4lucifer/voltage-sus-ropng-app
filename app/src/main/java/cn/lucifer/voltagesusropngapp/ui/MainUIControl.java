@@ -40,6 +40,7 @@ public class MainUIControl {
 	public static final String SERVICE_CARD_UPGRADE = "card_upgrade";
 	public static final String SERVICE_PRESENT_CHARACTER = "present_character";
 	public static final String SERVICE_PRESENT_BATCH = "present_batch";
+	public static final String SERVICE_RAID_GACHA = "raid_gacha";
 
 	private Context context;
 
