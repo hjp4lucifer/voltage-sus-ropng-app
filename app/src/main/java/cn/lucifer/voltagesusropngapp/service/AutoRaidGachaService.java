@@ -32,6 +32,11 @@ public class AutoRaidGachaService extends Service implements IWatchingRunning {
 	public static final String RAID_GACHA_START = "raid_gacha_start";
 
 	/**
+	 * 轮间延时基数（毫秒）的 Intent 参数，仅本次运行生效，不写入 SharedPreferences
+	 */
+	public static final String RAID_GACHA_SLEEP_BASE_MS = "raid_gacha_sleep_base_ms";
+
+	/**
 	 * 电源锁
 	 */
 	private PowerManager.WakeLock mWakeLock;
@@ -109,6 +114,11 @@ public class AutoRaidGachaService extends Service implements IWatchingRunning {
 							MainUIControl.SERVICE_RAID_GACHA, detail);
 				}
 			});
+			// 先应用 UI 传入的轮间延时，再启动监控线程，避免线程先读到默认值
+			int sleepBaseMs = intent.getIntExtra(RAID_GACHA_SLEEP_BASE_MS,
+					AutoRaidGacha.DEFAULT_SLEEP_BASE_MS);
+			LogUtils.info(StrUtils.generateMessage("Event 抽卡轮间延时基数={} ms", sleepBaseMs));
+			autoRaidGacha.setSleepBaseMs(sleepBaseMs);
 			watchingThread = new WatchingThread("watchingAutoRaidGacha", this);
 			watchingThread.start();
 		}

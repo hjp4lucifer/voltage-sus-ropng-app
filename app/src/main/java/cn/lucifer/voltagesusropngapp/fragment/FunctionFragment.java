@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.lucifer.voltage.sus.auto.AutoRaidGacha;
 import cn.lucifer.voltagesusropngapp.R;
 import cn.lucifer.voltagesusropngapp.adt.LogAdapter;
 import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
@@ -63,6 +64,8 @@ public class FunctionFragment extends Fragment {
 	private EditText editArenaId;
 	private View paramRaidIdRow;
 	private EditText editRaidId;
+	private View paramSleepBaseRow;
+	private EditText editSleepBase;
 	private View paramCardUpgradeIdsRow;
 	private EditText editCardUpgradeIds;
 	private View paramCharacterNameRow;
@@ -146,6 +149,8 @@ public class FunctionFragment extends Fragment {
 		editArenaId = root.findViewById(R.id.edit_arena_id);
 		paramRaidIdRow = root.findViewById(R.id.param_raid_id_row);
 		editRaidId = root.findViewById(R.id.edit_raid_id);
+		paramSleepBaseRow = root.findViewById(R.id.param_sleep_base_row);
+		editSleepBase = root.findViewById(R.id.edit_sleep_base);
 		paramCardUpgradeIdsRow = root.findViewById(R.id.param_card_upgrade_ids_row);
 		editCardUpgradeIds = root.findViewById(R.id.edit_card_upgrade_ids);
 		paramCharacterNameRow = root.findViewById(R.id.param_character_name_row);
@@ -339,6 +344,7 @@ public class FunctionFragment extends Fragment {
 		layoutParams.setVisibility(View.GONE);
 		paramArenaIdRow.setVisibility(View.GONE);
 		paramRaidIdRow.setVisibility(View.GONE);
+		paramSleepBaseRow.setVisibility(View.GONE);
 		paramCardUpgradeIdsRow.setVisibility(View.GONE);
 		paramCharacterNameRow.setVisibility(View.GONE);
 		paramExcludeNameRow.setVisibility(View.GONE);
@@ -353,10 +359,13 @@ public class FunctionFragment extends Fragment {
 			case FUNC_RAID_GACHA:
 				layoutParams.setVisibility(View.VISIBLE);
 				paramRaidIdRow.setVisibility(View.VISIBLE);
+				paramSleepBaseRow.setVisibility(View.VISIBLE);
 				String raidId = AppSettings.getRaidId(getContext());
 				if (raidId != null) {
 					editRaidId.setText(raidId);
 				}
+				// 轮间延时仅本次运行生效、不持久化，故每次进入聚焦态都回填默认值
+				editSleepBase.setText(String.valueOf(AutoRaidGacha.DEFAULT_SLEEP_BASE_MS));
 				break;
 			case FUNC_CARD_UPGRADE:
 				layoutParams.setVisibility(View.VISIBLE);
@@ -417,6 +426,8 @@ public class FunctionFragment extends Fragment {
 				saveRaidGachaParams();
 				intent = new Intent(context, AutoRaidGachaService.class);
 				intent.putExtra(AutoRaidGachaService.RAID_GACHA_TAG, AutoRaidGachaService.RAID_GACHA_START);
+				// 轮间延时仅本次运行生效，不写入 SharedPreferences
+				intent.putExtra(AutoRaidGachaService.RAID_GACHA_SLEEP_BASE_MS, getSleepBaseMsFromInput());
 				context.startService(intent);
 				break;
 
@@ -500,6 +511,22 @@ public class FunctionFragment extends Fragment {
 	private void saveRaidGachaParams() {
 		String raidId = editRaidId.getText().toString().trim();
 		AppSettings.setRaidId(getContext(), raidId.isEmpty() ? null : raidId);
+	}
+
+	/**
+	 * 读取聚焦态的轮间延时（毫秒）。该值仅本次运行生效、不持久化，空输入或非法值回退默认值
+	 */
+	private int getSleepBaseMsFromInput() {
+		String sleepBaseStr = editSleepBase.getText().toString().trim();
+		if (sleepBaseStr.isEmpty()) {
+			return AutoRaidGacha.DEFAULT_SLEEP_BASE_MS;
+		}
+		try {
+			int sleepBaseMs = Integer.parseInt(sleepBaseStr);
+			return sleepBaseMs >= 0 ? sleepBaseMs : AutoRaidGacha.DEFAULT_SLEEP_BASE_MS;
+		} catch (NumberFormatException e) {
+			return AutoRaidGacha.DEFAULT_SLEEP_BASE_MS;
+		}
 	}
 
 	// ==================== 状态更新 ====================

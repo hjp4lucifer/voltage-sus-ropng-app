@@ -31,6 +31,7 @@
     <string name="param_character_name">角色名</string>
     <string name="param_exclude_name">排除名称</string>
     <string name="param_max_count">最大次数</string>
+    <string name="param_sleep_base">轮间延时(ms)</string>
     <string name="hint_character_name_required">请输入角色名</string>
 
     <!-- 设置页 -->

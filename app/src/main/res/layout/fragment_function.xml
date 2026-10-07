@@ -187,6 +187,31 @@
                         android:layout_marginLeft="8dp"/>
             </LinearLayout>
 
+            <!-- 轮间延时参数（Event 抽卡，仅本次运行生效，不持久化） -->
+            <LinearLayout
+                    android:id="@+id/param_sleep_base_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/param_sleep_base"
+                        android:textSize="14sp"/>
+
+                <EditText
+                        android:id="@+id/edit_sleep_base"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+
             <!-- 升阶卡牌ID参数 -->
             <LinearLayout
                     android:id="@+id/param_card_upgrade_ids_row"
