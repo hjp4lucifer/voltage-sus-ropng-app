@@ -3,9 +3,17 @@ package cn.lucifer.voltagesusropngapp.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import cn.lucifer.voltage.sus.api.BaseApi;
+import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
+import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
+import cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService;
+import cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService;
+import cn.lucifer.voltagesusropngapp.service.AutoRaidGachaService;
+import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 全局配置管理，封装 SharedPreferences 的读写操作
@@ -37,6 +45,21 @@ public final class AppSettings {
 	private static final int DEFAULT_PFID = 8;
 	private static final boolean DEFAULT_ROOKIE = true;
 	private static final int DEFAULT_MAX_COUNT = 100;
+
+	/**
+	 * 业务名（MainUIControl.SERVICE_*）到 Service 完整类名的映射，用于校验 Service 是否真实存活
+	 * <p>
+	 * 注意：MainUIControl 新增 SERVICE_* 常量时，必须同步在此登记；未登记的业务名会被判定为未运行
+	 */
+	private static final Map<String, String> SERVICE_CLASS_NAME_MAP = new HashMap<>();
+
+	static {
+		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_ARENA, AutoArenaService.class.getName());
+		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_CARD_UPGRADE, AutoCardUpgradeService.class.getName());
+		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_PRESENT_CHARACTER, AutoPresentCharacterService.class.getName());
+		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_PRESENT_BATCH, AutoPresentBatchService.class.getName());
+		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_RAID_GACHA, AutoRaidGachaService.class.getName());
+	}
 
 	private AppSettings() {
 	}
@@ -256,8 +279,15 @@ public final class AppSettings {
 
 	/**
 	 * 检查指定 Service 是否真正在运行
+	 * <p>
+	 * 传入的是业务名（MainUIControl.SERVICE_*），需先映射为完整类名再与 {@code getClassName()} 比对；
+	 * 未在 {@link #SERVICE_CLASS_NAME_MAP} 登记的业务名一律视为未运行
 	 */
 	private static boolean isServiceRunning(Context context, String serviceName) {
+		String serviceClassName = SERVICE_CLASS_NAME_MAP.get(serviceName);
+		if (serviceClassName == null) {
+			return false;
+		}
 		android.app.ActivityManager am = (android.app.ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		if (am == null) {
 			return false;
@@ -267,7 +297,7 @@ public final class AppSettings {
 			return false;
 		}
 		for (android.app.ActivityManager.RunningServiceInfo info : services) {
-			if (info.service.getClassName().equals(serviceName)) {
+			if (info.service.getClassName().equals(serviceClassName)) {
 				return true;
 			}
 		}
