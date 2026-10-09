@@ -15,6 +15,7 @@ import cn.lucifer.util.StrUtils;
 import cn.lucifer.voltage.sus.api.BaseApi;
 import cn.lucifer.voltage.sus.auto.AutoRaidGacha;
 import cn.lucifer.voltage.sus.auto.OverrideSettingsCallback;
+import cn.lucifer.voltage.sus.auto.RunningCallback;
 import cn.lucifer.voltage.sus.thread.IWatchingRunning;
 import cn.lucifer.voltage.sus.thread.WatchingThread;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
@@ -108,7 +109,7 @@ public class AutoRaidGachaService extends Service implements IWatchingRunning {
 
 		if (null == autoRaidGacha) {
 			autoRaidGacha = new AutoRaidGacha();
-			autoRaidGacha.setRunningCallback(new AutoRaidGacha.RunningCallback() {
+			autoRaidGacha.setRunningCallback(new RunningCallback() {
 				@Override
 				public void onDetailUpdate(String detail) {
 					MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING,

@@ -15,6 +15,7 @@ import cn.lucifer.util.StrUtils;
 import cn.lucifer.voltage.sus.api.BaseApi;
 import cn.lucifer.voltage.sus.auto.AutoArena;
 import cn.lucifer.voltage.sus.auto.OverrideSettingsCallback;
+import cn.lucifer.voltage.sus.auto.RunningCallback;
 import cn.lucifer.voltage.sus.thread.IWatchingRunning;
 import cn.lucifer.voltage.sus.thread.WatchingThread;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
@@ -103,7 +104,7 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 
 		if (null == autoArena) {
 			autoArena = new AutoArena();
-			autoArena.setRunningCallback(new AutoArena.RunningCallback() {
+			autoArena.setRunningCallback(new RunningCallback() {
 				@Override
 				public void onDetailUpdate(String detail) {
 					MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING,
