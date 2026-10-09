@@ -40,9 +40,9 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 	private WatchingThread watchingThread;
 
 	/**
-	 * 运行标志位，用于优雅停止
+	 * 是否已收到停止请求。置位后业务循环在当前轮次边界退出
 	 */
-	private volatile boolean running = true;
+	private volatile boolean stopRequested = false;
 
 	/**
 	 * 停止广播接收器
@@ -51,10 +51,7 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.i(LogPrinter.LOG_TAG, "AutoArenaService received stop broadcast");
-			running = false;
-			if (autoArena != null) {
-				autoArena.setRunning(false);
-			}
+			requestStop();
 		}
 	};
 
@@ -84,6 +81,8 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 			return super.onStartCommand(intent, flags, startId);
 		}
 		if (!ARENA_BATTLE_START.equals(intent.getStringExtra(ARENA_BATTLE_TAG))) {
+			// 非法启动请求：结束自身，避免残留空转实例（WakeLock 由 onDestroy 释放）
+			stopSelf();
 			return super.onStartCommand(intent, flags, startId);
 		}
 
@@ -91,6 +90,8 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 		String runningService = AppSettings.getRunningService(this);
 		if (runningService != null && !MainUIControl.SERVICE_ARENA.equals(runningService)) {
 			LogUtils.info(StrUtils.generateMessage("无法启动竞技场对战：{}正在运行", runningService));
+			// 被互斥拒绝：结束自身，避免残留空转实例（WakeLock 由 onDestroy 释放）
+			stopSelf();
 			return super.onStartCommand(intent, flags, startId);
 		}
 
@@ -150,10 +151,7 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 
 	@Override
 	public void onDestroy() {
-		running = false;
-		if (autoArena != null) {
-			autoArena.setRunning(false);
-		}
+		requestStop();
 
 		// 注销停止广播接收器
 		try {
@@ -169,6 +167,16 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 		MainUIUtils.sendStatus(MainUIControl.STATUS_STOPPED, MainUIControl.SERVICE_ARENA, null);
 
 		releaseWakeLock();
+	}
+
+	/**
+	 * 请求停止当前任务：置停止标志位，并推送给业务对象
+	 */
+	private void requestStop() {
+		stopRequested = true;
+		if (autoArena != null) {
+			autoArena.setRunning(false);
+		}
 	}
 
 	@Override
@@ -197,10 +205,10 @@ public class AutoArenaService extends Service implements IWatchingRunning {
 			LogUtils.error("autoArena Exception!!!", e);
 		}
 
-		// 正常结束后清理
-		if (running) {
+		// 无论任务如何结束，Service 都应结束自身；"已完成"日志仅在自然完成时输出
+		if (!stopRequested) {
 			LogUtils.info("竞技场对战已完成！");
-			stopSelf();
 		}
+		stopSelf();
 	}
 }
