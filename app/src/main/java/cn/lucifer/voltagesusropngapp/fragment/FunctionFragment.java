@@ -364,8 +364,8 @@ public class FunctionFragment extends Fragment {
 				if (raidId != null) {
 					editRaidId.setText(raidId);
 				}
-				// 轮间延时仅本次运行生效、不持久化，故每次进入聚焦态都回填默认值
-				editSleepBase.setText(String.valueOf(AutoRaidGacha.DEFAULT_SLEEP_BASE_MS));
+				// 轮间延时与设置页共享同一份 SharedPreferences 配置，按已保存值回填
+				editSleepBase.setText(String.valueOf(AppSettings.getSleepBaseMs(getContext())));
 				break;
 			case FUNC_CARD_UPGRADE:
 				layoutParams.setVisibility(View.VISIBLE);
@@ -422,12 +422,10 @@ public class FunctionFragment extends Fragment {
 				break;
 
 			case FUNC_RAID_GACHA:
-				// 保存参数
+				// 保存参数（含轮间延时基数，写入 SharedPreferences）
 				saveRaidGachaParams();
 				intent = new Intent(context, AutoRaidGachaService.class);
 				intent.putExtra(AutoRaidGachaService.RAID_GACHA_TAG, AutoRaidGachaService.RAID_GACHA_START);
-				// 轮间延时仅本次运行生效，不写入 SharedPreferences
-				intent.putExtra(AutoRaidGachaService.RAID_GACHA_SLEEP_BASE_MS, getSleepBaseMsFromInput());
 				context.startService(intent);
 				break;
 
@@ -506,15 +504,18 @@ public class FunctionFragment extends Fragment {
 	}
 
 	/**
-	 * 保存 Event 抽卡参数（空输入保存为 null，表示未配置）
+	 * 保存 Event 抽卡参数。raidId 为核心字段：UI 被清空时沿用已保存值，不把 raid_id 写成 null；
+	 * 轮间延时与设置页共享同一份配置
 	 */
 	private void saveRaidGachaParams() {
 		String raidId = editRaidId.getText().toString().trim();
-		AppSettings.setRaidId(getContext(), raidId.isEmpty() ? null : raidId);
+		AppSettings.setRaidId(getContext(), raidId.isEmpty() ? AppSettings.getRaidId(getContext()) : raidId);
+
+		AppSettings.setSleepBaseMs(getContext(), getSleepBaseMsFromInput());
 	}
 
 	/**
-	 * 读取聚焦态的轮间延时（毫秒）。该值仅本次运行生效、不持久化，空输入或非法值回退默认值
+	 * 读取聚焦态的轮间延时（毫秒）。点击[开始]时写入 SharedPreferences，空输入或非法值回退默认值
 	 */
 	private int getSleepBaseMsFromInput() {
 		String sleepBaseStr = editSleepBase.getText().toString().trim();

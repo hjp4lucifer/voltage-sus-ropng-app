@@ -3,6 +3,8 @@ package cn.lucifer.voltagesusropngapp.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import cn.lucifer.voltage.sus.api.BaseApi;
+import cn.lucifer.voltage.sus.auto.AutoRaidGacha;
+import cn.lucifer.voltagesusropngapp.model.ConfigFile;
 import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
 import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService;
@@ -35,6 +37,7 @@ public final class AppSettings {
 	private static final String KEY_CHARACTER_NAME = "character_name";
 	private static final String KEY_EXCLUDE_NAME = "exclude_name";
 	private static final String KEY_MAX_COUNT = "max_count";
+	private static final String KEY_SLEEP_BASE_MS = "sleep_base_ms";
 
 	private static final int DEFAULT_ARENA_ID = 117;
 	private static final String DEFAULT_RAID_ID = null;
@@ -45,6 +48,7 @@ public final class AppSettings {
 	private static final int DEFAULT_PFID = 8;
 	private static final boolean DEFAULT_ROOKIE = true;
 	private static final int DEFAULT_MAX_COUNT = 100;
+	private static final int DEFAULT_SLEEP_BASE_MS = AutoRaidGacha.DEFAULT_SLEEP_BASE_MS;
 
 	/**
 	 * 业务名（MainUIControl.SERVICE_*）到 Service 完整类名的映射，用于校验 Service 是否真实存活
@@ -215,6 +219,65 @@ public final class AppSettings {
 
 	public static void setMaxCount(Context context, int maxCount) {
 		getPrefs(context).edit().putInt(KEY_MAX_COUNT, maxCount).apply();
+	}
+
+	// ==================== sleep_base_ms ====================
+
+	/**
+	 * 获取轮间延时基数（毫秒）。为后续可能通用的间隔时间预留同一份配置，当前仅 Event 抽卡使用
+	 */
+	public static int getSleepBaseMs(Context context) {
+		return getPrefs(context).getInt(KEY_SLEEP_BASE_MS, DEFAULT_SLEEP_BASE_MS);
+	}
+
+	/**
+	 * 保存轮间延时基数（毫秒）
+	 */
+	public static void setSleepBaseMs(Context context, int sleepBaseMs) {
+		getPrefs(context).edit().putInt(KEY_SLEEP_BASE_MS, sleepBaseMs).apply();
+	}
+
+	// ==================== 配置对象映射 ====================
+
+	/**
+	 * 将 SharedPreferences 中可导入导出的配置映射为 {@link ConfigFile}
+	 * <p>
+	 * 这是「设置页字段 → 配置文件字段」的唯一映射点，导出与新增字段都应从这里扩展
+	 */
+	public static ConfigFile toConfigFile(Context context) {
+		ConfigFile config = new ConfigFile();
+		config.setNsid(getNsid(context));
+		config.setDeviceUid(getDeviceUid(context));
+		config.setPfid(getPfid(context));
+		config.setPuKey(getPuKey(context));
+		config.setRookie(getRookie(context));
+		config.setArenaId(getArenaId(context));
+		config.setRaidId(getRaidId(context));
+		config.setAppliVersion(getAppliVersion(context));
+		config.setSleepBaseMs(getSleepBaseMs(context));
+		config.setCardUpgradeIdList(getCardUpgradeIdListRaw(context));
+		return config;
+	}
+
+	/**
+	 * 将 {@link ConfigFile} 整体写入 SharedPreferences。
+	 * <p>
+	 * 所有字段在同一个 {@code Editor} 上提交，因此要么全部生效、要么全部不生效，调用方无需担心中途失败留下半套配置。
+	 * 有默认值的字段在传入 null 时回落默认值；其余字段传入 null 表示清空。
+	 */
+	public static void saveConfigFile(Context context, ConfigFile config) {
+		getPrefs(context).edit()
+				.putInt(KEY_ARENA_ID, config.getArenaId() != null ? config.getArenaId() : DEFAULT_ARENA_ID)
+				.putString(KEY_RAID_ID, config.getRaidId())
+				.putString(KEY_APPLI_VERSION, config.getAppliVersion() != null ? config.getAppliVersion() : DEFAULT_APPLI_VERSION)
+				.putInt(KEY_SLEEP_BASE_MS, config.getSleepBaseMs() != null ? config.getSleepBaseMs() : DEFAULT_SLEEP_BASE_MS)
+				.putString(KEY_CARD_UPGRADE_ID_LIST, config.getCardUpgradeIdList())
+				.putString(KEY_NSID, config.getNsid())
+				.putString(KEY_DEVICE_UID, config.getDeviceUid())
+				.putInt(KEY_PFID, config.getPfid() != null ? config.getPfid() : DEFAULT_PFID)
+				.putString(KEY_PUKEY, config.getPuKey())
+				.putBoolean(KEY_ROOKIE, config.getRookie() != null && config.getRookie())
+				.apply();
 	}
 
 	// ==================== 公共覆盖方法 ====================

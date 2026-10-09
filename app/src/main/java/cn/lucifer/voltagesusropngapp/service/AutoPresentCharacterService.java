@@ -1,197 +1,82 @@
 package cn.lucifer.voltagesusropngapp.service;
 
-import android.annotation.SuppressLint;
-import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import cn.lucifer.util.LogUtils;
-import cn.lucifer.util.StrUtils;
 import cn.lucifer.voltage.sus.api.BaseApi;
 import cn.lucifer.voltage.sus.auto.AutoPresent;
 import cn.lucifer.voltage.sus.auto.OverrideSettingsCallback;
 import cn.lucifer.voltage.sus.auto.RunningCallback;
-import cn.lucifer.voltage.sus.thread.IWatchingRunning;
-import cn.lucifer.voltage.sus.thread.WatchingThread;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
-import cn.lucifer.voltagesusropngapp.util.LogPrinter;
 import cn.lucifer.voltagesusropngapp.util.MainUIUtils;
 
 /**
  * 领取角色礼物服务：按角色名匹配礼物并逐个领取
  */
-public class AutoPresentCharacterService extends Service implements IWatchingRunning {
+public class AutoPresentCharacterService extends BaseAutoService {
 
 	public static final String PRESENT_CHARACTER_TAG = "present_character_tag";
 
 	public static final String PRESENT_CHARACTER_START = "present_character_start";
 
-	/**
-	 * 电源锁
-	 */
-	private PowerManager.WakeLock mWakeLock;
-
 	private AutoPresent autoPresent;
-	private WatchingThread watchingThread;
 
-	/**
-	 * 是否已收到停止请求。置位后业务循环在当前轮次边界退出
-	 */
-	private volatile boolean stopRequested = false;
-
-	/**
-	 * 停止广播接收器
-	 */
-	private BroadcastReceiver stopReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Log.i(LogPrinter.LOG_TAG, "AutoPresentCharacterService received stop broadcast");
-			requestStop();
-		}
-	};
-
-	@Nullable
 	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
+	protected String serviceName() {
+		return MainUIControl.SERVICE_PRESENT_CHARACTER;
 	}
 
 	@Override
-	public void onCreate() {
-		super.onCreate();
-
-		Log.i(LogPrinter.LOG_TAG, "--------- AutoPresentCharacterService onCreate ! ");
-
-		acquireWakeLock();
-
-		// 注册停止广播接收器
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(MainUIControl.STOP_RECEIVER_ACTION);
-		registerReceiver(stopReceiver, filter);
+	protected String startTag() {
+		return PRESENT_CHARACTER_TAG;
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent == null) {
-			return super.onStartCommand(intent, flags, startId);
-		}
-		if (!PRESENT_CHARACTER_START.equals(intent.getStringExtra(PRESENT_CHARACTER_TAG))) {
-			// 非法启动请求：结束自身，避免残留空转实例（WakeLock 由 onDestroy 释放）
-			stopSelf();
-			return super.onStartCommand(intent, flags, startId);
-		}
-
-		// 检查互斥：是否有其他 Service 正在运行
-		String runningService = AppSettings.getRunningService(this);
-		if (runningService != null && !MainUIControl.SERVICE_PRESENT_CHARACTER.equals(runningService)) {
-			LogUtils.info(StrUtils.generateMessage("无法启动领取角色礼物：{}正在运行", runningService));
-			// 被互斥拒绝：结束自身，避免残留空转实例（WakeLock 由 onDestroy 释放）
-			stopSelf();
-			return super.onStartCommand(intent, flags, startId);
-		}
-
-		// 设置运行标志
-		AppSettings.setRunningService(this, MainUIControl.SERVICE_PRESENT_CHARACTER);
-
-		// 发送运行状态广播
-		MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING, MainUIControl.SERVICE_PRESENT_CHARACTER, null);
-
-		if (null == autoPresent) {
-			autoPresent = new AutoPresent();
-			autoPresent.setRunningCallback(new RunningCallback() {
-				@Override
-				public void onDetailUpdate(String detail) {
-					MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING,
-							MainUIControl.SERVICE_PRESENT_CHARACTER, detail);
-				}
-			});
-
-			// 设置 API 配置覆盖回调
-			final Context context = this;
-			autoPresent.setOverrideSettings(new OverrideSettingsCallback() {
-				@Override
-				public void overrideSettings(BaseApi api) {
-					AppSettings.applyOverrideSettings(context, api);
-				}
-			});
-
-			watchingThread = new WatchingThread("watchingAutoPresentCharacter", this);
-			watchingThread.start();
-		}
-
-		return super.onStartCommand(intent, flags, startId);
+	protected String startValue() {
+		return PRESENT_CHARACTER_START;
 	}
 
-	/**
-	 * 申请设备电源锁
-	 */
-	@SuppressLint("InvalidWakeLockTag")
-	private void acquireWakeLock() {
-		if (null == mWakeLock) {
-			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-			mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK
-					| PowerManager.ON_AFTER_RELEASE, "cn.lucifer.voltagesusropngapp.service.present_character");
-			if (null != mWakeLock) {
-				try {
-					mWakeLock.acquire();
-					Log.i(LogPrinter.LOG_TAG, "mWakeLock acquire! =================");
-				} catch (SecurityException e) {
-					Log.w(LogPrinter.LOG_TAG, "mWakeLock acquire failed, no WAKE_LOCK permission", e);
-					mWakeLock = null;
-				}
+	@Override
+	protected String taskDisplayName() {
+		return "领取角色礼物";
+	}
+
+	@Override
+	protected String watchingThreadName() {
+		return "watchingAutoPresentCharacter";
+	}
+
+	@Override
+	protected void initTask() {
+		autoPresent = new AutoPresent();
+		autoPresent.setRunningCallback(new RunningCallback() {
+			@Override
+			public void onDetailUpdate(String detail) {
+				MainUIUtils.sendStatus(MainUIControl.STATUS_RUNNING,
+						MainUIControl.SERVICE_PRESENT_CHARACTER, detail);
 			}
-		}
-	}
+		});
 
-	/**
-	 * onDestroy时，释放设备电源锁
-	 */
-	private void releaseWakeLock() {
-		if (null != mWakeLock) {
-			mWakeLock.release();
-			Log.i(LogPrinter.LOG_TAG, "mWakeLock release! =================");
-		}
-		mWakeLock = null;
+		// 设置 API 配置覆盖回调
+		final Context context = this;
+		autoPresent.setOverrideSettings(new OverrideSettingsCallback() {
+			@Override
+			public void overrideSettings(BaseApi api) {
+				AppSettings.applyOverrideSettings(context, api);
+			}
+		});
 	}
 
 	@Override
-	public void onDestroy() {
-		requestStop();
-
-		// 注销停止广播接收器
-		try {
-			unregisterReceiver(stopReceiver);
-		} catch (Exception e) {
-			Log.w(LogPrinter.LOG_TAG, "unregisterReceiver error", e);
-		}
-
-		// 清除运行标志
-		AppSettings.clearRunningService(this);
-
-		// 发送停止状态广播
-		MainUIUtils.sendStatus(MainUIControl.STATUS_STOPPED, MainUIControl.SERVICE_PRESENT_CHARACTER, null);
-
-		releaseWakeLock();
-	}
-
-	/**
-	 * 请求停止当前任务：置停止标志位，并推送给业务对象
-	 */
-	private void requestStop() {
-		stopRequested = true;
+	protected void onStopRequested() {
 		if (autoPresent != null) {
 			autoPresent.setRunning(false);
 		}
 	}
 
 	@Override
-	public void watchThreadPoolExecutor() {
+	protected void doWork() {
 		String characterName = AppSettings.getCharacterName(this);
 
 		try {
@@ -200,8 +85,5 @@ public class AutoPresentCharacterService extends Service implements IWatchingRun
 			Log.e("presentCharacter", "领取角色礼物异常！", e);
 			LogUtils.error("领取角色礼物异常！", e);
 		}
-
-		// 无论任务如何结束，Service 都应结束自身
-		stopSelf();
 	}
 }
