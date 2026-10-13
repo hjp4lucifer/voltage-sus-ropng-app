@@ -25,6 +25,7 @@ import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
 import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService;
+import cn.lucifer.voltagesusropngapp.service.AutoRaidClimbService;
 import cn.lucifer.voltagesusropngapp.service.AutoRaidGachaService;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
@@ -39,6 +40,7 @@ public class FunctionFragment extends Fragment {
 
 	private static final String FUNC_ARENA_BATTLE = "arena_battle";
 	private static final String FUNC_RAID_GACHA = "raid_gacha";
+	private static final String FUNC_RAID_CLIMB = "raid_climb";
 	private static final String FUNC_CARD_UPGRADE = "card_upgrade";
 	private static final String FUNC_PRESENT_CHARACTER = "present_character";
 	private static final String FUNC_PRESENT_BATCH = "present_batch";
@@ -255,6 +257,7 @@ public class FunctionFragment extends Fragment {
 		// Event 功能
 		addFunctionRow(groupEvent, FUNC_ARENA_BATTLE, R.string.action_arena_battle);
 		addFunctionRow(groupEvent, FUNC_RAID_GACHA, R.string.action_raid_gacha);
+		addFunctionRow(groupEvent, FUNC_RAID_CLIMB, R.string.action_raid_climb);
 
 		// 礼物功能
 		addFunctionRow(groupPresent, FUNC_PRESENT_CHARACTER, R.string.action_present_character);
@@ -367,6 +370,15 @@ public class FunctionFragment extends Fragment {
 				// 轮间延时与设置页共享同一份 SharedPreferences 配置，按已保存值回填
 				editSleepBase.setText(String.valueOf(AppSettings.getSleepBaseMs(getContext())));
 				break;
+			case FUNC_RAID_CLIMB:
+				// Event 爬楼只复用 raidId（其余参数取全局配置），不显示轮间延时行
+				layoutParams.setVisibility(View.VISIBLE);
+				paramRaidIdRow.setVisibility(View.VISIBLE);
+				String climbRaidId = AppSettings.getRaidId(getContext());
+				if (climbRaidId != null) {
+					editRaidId.setText(climbRaidId);
+				}
+				break;
 			case FUNC_CARD_UPGRADE:
 				layoutParams.setVisibility(View.VISIBLE);
 				paramCardUpgradeIdsRow.setVisibility(View.VISIBLE);
@@ -426,6 +438,14 @@ public class FunctionFragment extends Fragment {
 				saveRaidGachaParams();
 				intent = new Intent(context, AutoRaidGachaService.class);
 				intent.putExtra(AutoRaidGachaService.RAID_GACHA_TAG, AutoRaidGachaService.RAID_GACHA_START);
+				context.startService(intent);
+				break;
+
+			case FUNC_RAID_CLIMB:
+				// 保存参数
+				saveRaidClimbParams();
+				intent = new Intent(context, AutoRaidClimbService.class);
+				intent.putExtra(AutoRaidClimbService.RAID_CLIMB_TAG, AutoRaidClimbService.RAID_CLIMB_START);
 				context.startService(intent);
 				break;
 
@@ -512,6 +532,14 @@ public class FunctionFragment extends Fragment {
 		AppSettings.setRaidId(getContext(), raidId.isEmpty() ? AppSettings.getRaidId(getContext()) : raidId);
 
 		AppSettings.setSleepBaseMs(getContext(), getSleepBaseMsFromInput());
+	}
+
+	/**
+	 * 保存 Event 爬楼参数。raidId 为核心字段：UI 被清空时沿用已保存值，不把 raid_id 写成 null
+	 */
+	private void saveRaidClimbParams() {
+		String raidId = editRaidId.getText().toString().trim();
+		AppSettings.setRaidId(getContext(), raidId.isEmpty() ? AppSettings.getRaidId(getContext()) : raidId);
 	}
 
 	/**
@@ -612,6 +640,8 @@ public class FunctionFragment extends Fragment {
 				return MainUIControl.SERVICE_ARENA;
 			case FUNC_RAID_GACHA:
 				return MainUIControl.SERVICE_RAID_GACHA;
+			case FUNC_RAID_CLIMB:
+				return MainUIControl.SERVICE_RAID_CLIMB;
 			case FUNC_CARD_UPGRADE:
 				return MainUIControl.SERVICE_CARD_UPGRADE;
 			case FUNC_PRESENT_CHARACTER:
@@ -632,6 +662,8 @@ public class FunctionFragment extends Fragment {
 				return getString(R.string.action_arena_battle);
 			case FUNC_RAID_GACHA:
 				return getString(R.string.action_raid_gacha);
+			case FUNC_RAID_CLIMB:
+				return getString(R.string.action_raid_climb);
 			case FUNC_CARD_UPGRADE:
 				return getString(R.string.action_card_upgrade);
 			case FUNC_PRESENT_CHARACTER:
@@ -651,6 +683,8 @@ public class FunctionFragment extends Fragment {
 			return getString(R.string.action_arena_battle);
 		} else if (MainUIControl.SERVICE_RAID_GACHA.equals(serviceName)) {
 			return getString(R.string.action_raid_gacha);
+		} else if (MainUIControl.SERVICE_RAID_CLIMB.equals(serviceName)) {
+			return getString(R.string.action_raid_climb);
 		} else if (MainUIControl.SERVICE_CARD_UPGRADE.equals(serviceName)) {
 			return getString(R.string.action_card_upgrade);
 		} else if (MainUIControl.SERVICE_PRESENT_CHARACTER.equals(serviceName)) {

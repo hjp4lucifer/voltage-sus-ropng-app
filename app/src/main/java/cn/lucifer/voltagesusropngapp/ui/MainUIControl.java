@@ -41,6 +41,7 @@ public class MainUIControl {
 	public static final String SERVICE_PRESENT_CHARACTER = "present_character";
 	public static final String SERVICE_PRESENT_BATCH = "present_batch";
 	public static final String SERVICE_RAID_GACHA = "raid_gacha";
+	public static final String SERVICE_RAID_CLIMB = "raid_climb";
 
 	private Context context;
 

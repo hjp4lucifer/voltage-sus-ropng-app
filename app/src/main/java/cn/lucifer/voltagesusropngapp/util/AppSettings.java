@@ -9,6 +9,7 @@ import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
 import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentBatchService;
 import cn.lucifer.voltagesusropngapp.service.AutoPresentCharacterService;
+import cn.lucifer.voltagesusropngapp.service.AutoRaidClimbService;
 import cn.lucifer.voltagesusropngapp.service.AutoRaidGachaService;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 
@@ -63,6 +64,7 @@ public final class AppSettings {
 		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_PRESENT_CHARACTER, AutoPresentCharacterService.class.getName());
 		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_PRESENT_BATCH, AutoPresentBatchService.class.getName());
 		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_RAID_GACHA, AutoRaidGachaService.class.getName());
+		SERVICE_CLASS_NAME_MAP.put(MainUIControl.SERVICE_RAID_CLIMB, AutoRaidClimbService.class.getName());
 	}
 
 	private AppSettings() {

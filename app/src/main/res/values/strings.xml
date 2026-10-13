@@ -17,6 +17,7 @@
     <string name="action_present_character">领取角色礼物</string>
     <string name="action_present_batch">批量领取礼物</string>
     <string name="action_raid_gacha">Event 抽卡</string>
+    <string name="action_raid_climb">Event 爬楼</string>
 
     <!-- 通用按钮与状态 -->
     <string name="btn_start">开始</string>
