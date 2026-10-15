@@ -2,10 +2,12 @@ package cn.lucifer.voltagesusropngapp.fragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -19,7 +21,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.lucifer.voltage.sus.auto.AutoRaidGacha;
+import cn.lucifer.voltage.sus.dict.CharaConst;
 import cn.lucifer.voltagesusropngapp.R;
+import cn.lucifer.voltagesusropngapp.adt.CharaChoiceAdapter;
 import cn.lucifer.voltagesusropngapp.adt.LogAdapter;
 import cn.lucifer.voltagesusropngapp.service.AutoArenaService;
 import cn.lucifer.voltagesusropngapp.service.AutoCardUpgradeService;
@@ -30,6 +34,8 @@ import cn.lucifer.voltagesusropngapp.service.AutoRaidGachaService;
 import cn.lucifer.voltagesusropngapp.ui.MainUIControl;
 import cn.lucifer.voltagesusropngapp.util.AppSettings;
 import cn.lucifer.voltagesusropngapp.util.LogPrinter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 功能页：列表态展示所有功能，聚焦态展示单个功能的参数、运行控制和日志
@@ -72,6 +78,7 @@ public class FunctionFragment extends Fragment {
 	private EditText editCardUpgradeIds;
 	private View paramCharacterNameRow;
 	private EditText editCharacterName;
+	private Button btnChooseCharacter;
 	private View paramExcludeNameRow;
 	private EditText editExcludeName;
 	private View paramMaxCountRow;
@@ -157,6 +164,7 @@ public class FunctionFragment extends Fragment {
 		editCardUpgradeIds = root.findViewById(R.id.edit_card_upgrade_ids);
 		paramCharacterNameRow = root.findViewById(R.id.param_character_name_row);
 		editCharacterName = root.findViewById(R.id.edit_character_name);
+		btnChooseCharacter = root.findViewById(R.id.btn_choose_character);
 		paramExcludeNameRow = root.findViewById(R.id.param_exclude_name_row);
 		editExcludeName = root.findViewById(R.id.edit_exclude_name);
 		paramMaxCountRow = root.findViewById(R.id.param_max_count_row);
@@ -183,6 +191,14 @@ public class FunctionFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				startCurrentFunction();
+			}
+		});
+
+		// 角色选择按钮
+		btnChooseCharacter.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showCharacterPicker();
 			}
 		});
 
@@ -409,6 +425,35 @@ public class FunctionFragment extends Fragment {
 				// 无参数功能，不显示参数区
 				break;
 		}
+	}
+
+	// ==================== 角色选择器 ====================
+
+	/**
+	 * 弹出色选择列表（序号列 + 名字列），数据来自库层角色静态表 {@link CharaConst}
+	 * <p>
+	 * 点选后<b>只把角色名</b>回填输入框：输入框内容最终会被拿去与礼物名做 contains 匹配，
+	 * 若把「序号 + 名字」的展示串写进去将永远匹配不到——展示与回填必须解耦
+	 */
+	private void showCharacterPicker() {
+		final List<Integer> charaIdList = new ArrayList<>(CharaConst.charaNames().keySet());
+		if (charaIdList.isEmpty()) {
+			return;
+		}
+
+		CharaChoiceAdapter adapter = new CharaChoiceAdapter(getContext(), charaIdList);
+		new AlertDialog.Builder(getContext())
+				.setTitle(R.string.dialog_title_choose_character)
+				.setAdapter(adapter, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String characterName = CharaConst.nameOf(charaIdList.get(which));
+						if (characterName != null) {
+							editCharacterName.setText(characterName);
+						}
+					}
+				})
+				.show();
 	}
 
 	// ==================== 启动功能 ====================

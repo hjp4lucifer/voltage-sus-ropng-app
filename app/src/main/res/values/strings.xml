@@ -35,6 +35,10 @@
     <string name="param_sleep_base">轮间延时(ms)</string>
     <string name="hint_character_name_required">请输入角色名</string>
 
+    <!-- 角色选择器 -->
+    <string name="btn_choose_character">选择</string>
+    <string name="dialog_title_choose_character">选择角色</string>
+
     <!-- 设置页 -->
     <string name="settings_title">全局配置</string>
     <string name="settings_arena_id">Arena ID</string>

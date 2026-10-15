@@ -259,6 +259,15 @@
                         android:layout_weight="1"
                         android:textSize="14sp"
                         android:layout_marginLeft="8dp"/>
+
+                <!-- 角色选择入口：从角色静态表挑选并把角色名回填到左侧输入框 -->
+                <Button
+                        android:id="@+id/btn_choose_character"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:text="@string/btn_choose_character"
+                        android:textSize="14sp"/>
             </LinearLayout>
 
             <!-- 排除名称参数 -->

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 角色选择项：序号列（chara_id）+ 名字列 两列展示，供 CharaChoiceAdapter 使用 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+    <!-- 序号列：固定宽度 + 右对齐，保证各行名字列的起点一致 -->
+    <TextView
+            android:id="@+id/text_chara_id"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textSize="14sp"
+            android:textColor="#888888"/>
+
+    <!-- 名字列：占满剩余宽度 -->
+    <TextView
+            android:id="@+id/text_chara_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="12dp"
+            android:textSize="16sp"/>
+
+</LinearLayout>
